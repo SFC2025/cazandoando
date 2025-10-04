@@ -49,7 +49,6 @@ a {
 }
 
 /* Header / Nav */
-/* REEMPLAZALO POR ESTE BLOQUE NUEVO */
 .site-header {
   position: sticky;
   top: 0;
@@ -122,18 +121,37 @@ a {
 /* Hero */
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: 100svh; /* base */
   display: grid;
   place-items: center;
   isolation: isolate;
-  overflow: hidden; /* evita desbordes (franja azul) */
-  contain: paint; /* previene artefactos en mobile */
+  overflow: hidden;
+  contain: paint;
 }
 
-/* Fallback si el navegador no soporta svh */
+/* Navegadores modernos: uso dvh para que respete barras del browser */
+@supports (height: 100dvh) {
+  .hero {
+    min-height: 100dvh;
+  }
+}
+
+/* En mobile: resto la altura del header sticky para que no "pase" del alto del celu */
+@media (max-width: 600px) {
+  .hero {
+    min-height: calc(100dvh - 72px);
+  } /* 72px ≈ alto del header en tu layout */
+}
+
+/* Fallback si no hay svh/dvh: uso vh y también resto header en mobile */
 @supports not (height: 100svh) {
   .hero {
     min-height: 100vh;
+  }
+  @media (max-width: 600px) {
+    .hero {
+      min-height: calc(100vh - 72px);
+    }
   }
 }
 
