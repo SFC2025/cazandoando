@@ -6,10 +6,10 @@
 */
 
 (() => {
-  const WHATSAPP_NUMBER = "5493424485574"; // Cambiar aquí si hace falta
+  const WHATSAPP_NUMBER = "5493424485574"; // Cambiar si hace falta
   const PRODUCTS_JSON = "data/products.json";
   const API_FALLBACK = "/api/products"; // Hook futuro: si existe API, usarla
-  // en admin.html y en script.js (arriba, junto a tus const)
+  // en admin.html y en script.js (arriba, junto a los const)
   const SUPABASE_URL = "https://vtdwtjxadqtmwwhjjhey.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0ZHd0anhhZHF0bXd3aGpqaGV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MTE2MjcsImV4cCI6MjA3NTA4NzYyN30.Hqz6S3MvccPgOwavAnA19cf-1mrtzLE_fd5RAqAs7hk";
@@ -171,7 +171,7 @@
         btn.setAttribute("aria-selected", "true");
 
         filterByCategory(btn.dataset.filter);
-        localStorage.setItem("ca_filter", btn.dataset.filter); // <-- AGREGADO
+        localStorage.setItem("ca_filter", btn.dataset.filter);
 
         document
           .getElementById("indumentaria")
@@ -181,7 +181,6 @@
 
     // Mostrar todo al cargar (evita quedar “pegado” a un filtro previo)
     filterByCategory("all");
-    // restaurar filtro si el usuario vuelve
     // restaurar filtro si el usuario vuelve (sin scrollear)
     const last = localStorage.getItem("ca_filter") || "all";
     const lastBtn = filtersWrap.querySelector(`[data-filter="${last}"]`);
@@ -380,7 +379,7 @@
     $stockGrid.innerHTML =
       '<div class="stock-item skeleton" style="height:280px;border-radius:14px"></div>'.repeat(
         8
-      ); // <-- AGREGADO
+      );
     const { data, error } = await supa
       .from("stock_images")
       .select("*")
@@ -428,7 +427,7 @@
       renderProducts(products);
       renderFilters(products);
 
-      // NUEVO: cargar galería de stock
+      //cargar galería de stock
       loadStock();
     } catch (err) {
       console.error("Error cargando productos:", err);
