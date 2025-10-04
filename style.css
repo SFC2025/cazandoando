@@ -418,21 +418,6 @@ a {
   outline-offset: 2px;
 }
 
-/* Products Grid */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* desktop/tablet igual */
-  gap: 18px;
-}
-
-/* 2 columnas tipo thumbs (igual que .thumbs-grid: minmax ~160px y gap 12px) */
-@media (max-width: 560px) {
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-  }
-}
-
 .product-card {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1215,5 +1200,20 @@ textarea:focus {
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+/* === FORCE mobile products: 2-up grid === */
+@media (max-width: 600px) {
+  #products-grid.products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+}
+
+/* (Opcional) pantallas MUY chicas vuelven a 2-up igual */
+@media (max-width: 360px) {
+  #products-grid.products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
