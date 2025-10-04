@@ -136,11 +136,11 @@ a {
   }
 }
 
-/* En mobile: resto la altura del header sticky para que no "pase" del alto del celu */
+/* En mobile: el hero ocupa TODO el alto del celu (sin restar header) */
 @media (max-width: 600px) {
   .hero {
-    min-height: calc(100dvh - 72px);
-  } /* 72px ≈ alto del header en tu layout */
+    min-height: 100dvh;
+  }
 }
 
 /* Fallback si no hay svh/dvh: uso vh y también resto header en mobile */
@@ -150,7 +150,7 @@ a {
   }
   @media (max-width: 600px) {
     .hero {
-      min-height: calc(100vh - 72px);
+      min-height: 100vh;
     }
   }
 }
