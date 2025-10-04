@@ -323,15 +323,21 @@ a {
   font-size: 1.05rem;
 }
 
-/* Sections */
-/* Sections (compact) */
+/* Sections (compact + fondo base) */
 .section {
   padding: 64px 0;
-} /* antes 72px */
+  background: var(--color-bg);
+}
 @media (max-width: 600px) {
   .section {
     padding: 44px 0;
-  } /* antes 72px en mobile */
+  }
+}
+
+/* contenedor que va debajo del camo */
+.section-under-camo {
+  background: var(--color-bg);
+  padding-top: 16px;
 }
 
 /* Offset al navegar a #anclas para que no se tape con el header */
@@ -352,24 +358,8 @@ a {
   }
 }
 
-/* Título más cerca del camo */
-.camo-sep + .section {
-  padding-top: 20px;
-} /* antes 28px */
-@media (max-width: 600px) {
-  .camo-sep + .section {
-    padding-top: 12px;
-  } /* antes 22px */
-}
-
-/* Indumentaria: aún más cerca del camo */
 .section.section-products {
-  padding-top: 12px;
-}
-@media (max-width: 600px) {
-  .section.section-products {
-    padding-top: 8px;
-  }
+  padding-top: 0;
 }
 
 /* Testimonios: compactamos y seguimos evitando solape con WA */
@@ -525,6 +515,13 @@ a {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* PERF: lazy paint SOLO en listados pesados (no en .section) */
+.products-grid,
+.section-testimonios .thumbs-grid,
+.section-stock .stock-grid {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px; /* altura estimada para evitar saltos */
+}
 
 /* Contact */
 .section-contact .contact-actions {
@@ -567,29 +564,100 @@ a {
   padding: 10px 0 18px;
 }
 /* === CAMO decorativo === */
-
 /* Banda camo superior para secciones */
 .camo-band {
   position: relative;
   height: 160px;
+  margin: 0 0 -1px 0; /* solapa 1px con la sección siguiente */
+  border-bottom: 0; /* quita la línea */
+  background: #0b0b0b;
+  overflow: hidden;
+}
+
+.camo-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background-image: url("assets/camuflado.webp");
   background-repeat: repeat;
-  background-size: 420px 420px;
-  background-position: center top;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background-size: 520px 520px; /* igual que el footer */
+  background-position: top center;
+  opacity: 0.16; /* textura visible como en el footer */
+  pointer-events: none;
 
-  /* funde hacia abajo con el fondo de sección */
-  box-shadow: inset 0 -40px 28px rgba(15, 23, 42, 0.92);
-  -webkit-mask-image: linear-gradient(to bottom, black 86%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 86%, transparent 100%);
+  /* misma máscara del footer para que no “llene” todo */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18%,
+    black 82%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 18%,
+    black 82%,
+    transparent 100%
+  );
 }
+.camo-band::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px; /* baja 1px para tapar el seam */
+  height: 100px; /* fade más largo */
+  background: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0) 0%,
+    rgba(15, 23, 42, 0.2) 55%,
+    var(--color-bg) 96%,
+    var(--color-bg) 100%
+  );
+  pointer-events: none;
+}
+
+/* === Títulos dentro del camo (solo Stock) === */
+.camo-with-title {
+  position: relative;
+}
+.camo-with-title .camo-title {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center; /* centra vertical */
+  justify-content: start; /* alinea a la izquierda como ahora */
+  padding: 0 4vw;
+  z-index: 1; /* sobre la textura y el degradé */
+}
+.camo-with-title .camo-title h2 {
+  margin: 0 0 6px 0;
+  font-size: clamp(1.6rem, 1.5vw + 1.1rem, 2.2rem);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+.camo-with-title .camo-title .section-sub {
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* un poco de aire entre el camo y la grilla */
+.section-stock .section-under-camo {
+  padding-top: 16px;
+}
+
+/* anula el ajuste anterior de “pegar” el h2 al camo en Stock */
+.section-stock .section-header {
+  margin-top: 0;
+}
+
 @media (max-width: 600px) {
   .camo-band {
     height: 120px;
   } /* antes 140px */
 }
 
-/* El título "se mete" apenas en el fade para que no quede colgado */
 /* El título “se mete” apenas en el fade */
 .section-testimonios .section-header {
   margin-top: 0;
@@ -602,18 +670,6 @@ a {
   .section-stock .section-header {
     margin-top: -12px;
   } /* antes -6px */
-}
-
-/* En productos lo acerco un toque más */
-.section-products .section-header {
-  margin-top: -25px; /* desktop */
-  position: relative;
-  z-index: 1;
-}
-@media (max-width: 600px) {
-  .section-products .section-header {
-    margin-top: -8px; /* mobile */
-  }
 }
 
 /* Footer con camo sutil de fondo */
@@ -670,27 +726,6 @@ a {
 .site-footer .footer-copy {
   position: relative;
   z-index: 1;
-}
-/* === Separador camo pegado al HERO === */
-.camo-sep {
-  height: 160px; /* desktop */
-  background-image: url("assets/camuflado.webp");
-  background-repeat: repeat;
-  background-size: 420px 420px;
-  background-position: center top;
-  margin: 0;
-  border-top: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-
-  /* solo fade hacia abajo para fundirse con el fondo de secciones */
-  box-shadow: inset 0 -40px 28px rgba(15, 23, 42, 0.92);
-  -webkit-mask-image: linear-gradient(to bottom, black 86%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 86%, transparent 100%);
-}
-@media (max-width: 600px) {
-  .camo-sep {
-    height: 120px;
-  } /* antes 140px */
 }
 
 /* === Footer: iconos sociales === */
@@ -751,23 +786,6 @@ a {
   text-decoration: underline;
 }
 
-/* Footer grid en 3 columnas: brand | logo | redes */
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 18px;
-  padding: 24px 0;
-}
-.footer-brand {
-  justify-self: start;
-}
-.footer-center {
-  justify-self: center;
-}
-.socials {
-  justify-self: end;
-}
 /* Centro del footer: fija la “altura de fila” y deja crecer el logo por fuera */
 .footer-center {
   justify-self: center;
@@ -1160,23 +1178,11 @@ textarea:focus {
   scroll-margin-top: 84px;
 }
 
-/* Link activo en la nav mientras se scrollea */
-.primary-nav a.is-active {
-  opacity: 1;
-  text-decoration: underline;
-  text-underline-offset: 6px;
-}
-
 /* Nav: link activo al pasar por cada sección */
 .primary-nav a.is-active {
   opacity: 1;
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-
-.section {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 800px;
 }
 
 .skeleton {

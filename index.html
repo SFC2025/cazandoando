@@ -47,7 +47,8 @@
 -->
 
     <link rel="icon" type="image/webp" href="assets/favicon.webp" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=1" />
+
     <style>
       /* Filtros tipo "chips" */
       .filters {
@@ -238,15 +239,12 @@
           aria-label="Imagen temática de caza y naturaleza"
         ></div>
         <div class="hero-overlay" aria-hidden="true"></div>
-        <!-- REEMPLAZALO POR ESTE BLOQUE NUEVO (solo CTAs) -->
         <div class="hero-content">
           <div class="hero-ctas">
             <a class="btn btn-cta" href="#indumentaria">Ver indumentaria</a>
           </div>
         </div>
       </section>
-      <!-- Separador camo pegado al HERO -->
-      <div class="camo-sep" aria-hidden="true"></div>
 
       <!-- Indumentaria: grilla responsive con estado de stock -->
       <section
@@ -254,14 +252,18 @@
         class="section section-products"
         aria-labelledby="indumentaria-title"
       >
-        <div class="container">
-          <div class="section-header">
+        <!-- Camo con el título adentro (igual que Stock) -->
+        <div class="camo-band camo-with-title">
+          <div class="camo-title container" role="presentation">
             <h2 id="indumentaria-title">Indumentaria</h2>
             <p class="section-sub">
               Buzos, Gorras, Polares, Ópticas, Linternas, Municiones
             </p>
           </div>
+        </div>
 
+        <!-- Contenido debajo del camo -->
+        <div class="container section-under-camo">
           <!-- Filtros por categoría (opcional) -->
           <div
             id="filters"
@@ -269,6 +271,7 @@
             role="tablist"
             aria-label="Filtrar por categoría"
           ></div>
+
           <div
             id="products-grid"
             class="products-grid"
@@ -285,16 +288,18 @@
         class="section section-testimonios"
         aria-labelledby="clientes-title"
       >
-        <div class="camo-band" aria-hidden="true"></div>
-
-        <div class="container">
-          <div class="section-header">
+        <!-- Camo con el título adentro (igual que Stock) -->
+        <div class="camo-band camo-with-title">
+          <div class="camo-title container" role="presentation">
             <h2 id="clientes-title">Clientes conformes</h2>
             <p class="section-sub">Fotos reales usando CazandoAndo</p>
           </div>
+        </div>
 
+        <!-- Contenido debajo del camo -->
+        <div class="container section-under-camo">
           <div class="thumbs-grid" role="list">
-            <!-- Reemplazá/ajustá las rutas si tus archivos están en otra carpeta -->
+            <!-- Reemplazar/ajustar las rutas si tus archivos están en otra carpeta -->
             <a
               role="listitem"
               class="thumb"
@@ -476,14 +481,14 @@
         class="section section-stock"
         aria-labelledby="stock-title"
       >
-        <div class="camo-band" aria-hidden="true"></div>
-
-        <div class="container">
-          <div class="section-header">
+        <div class="camo-band camo-with-title">
+          <div class="camo-title container" role="presentation">
             <h2 id="stock-title">Stock real / Últimos ingresos</h2>
             <p class="section-sub">Fotos recientes de producción y entregas</p>
           </div>
+        </div>
 
+        <div class="container section-under-camo">
           <!-- Contenedor dinámico -->
           <div
             id="stock-grid"
