@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Panel CazandoAndo</title>
+
+    <style>
+      /* Base */
+      body {
+        font-family: system-ui, Arial, sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+        margin: 0;
+      }
+      .wrap {
+        width: min(1320px, 96vw);
+        margin: 24px auto;
+      }
+      .card {
+        background: #0b0b0b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        overflow-x: auto;
+      }
+      input,
+      select,
+      button {
+        font: inherit;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        padding: 8px 10px;
+        background: #111;
+        color: #e5e7eb;
+      }
+      button {
+        background: #ff7a00;
+        border: 0;
+        color: #111;
+        font: inherit;
+        font-size: 15px; /* fuerzo tamaño exacto */
+        line-height: 24px; /* misma “altura de letra” */
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+      .muted {
+        opacity: 0.75;
+      }
+
+      /* Tabla cómoda (filas separadas) */
+      table {
+        width: 100%;
+        min-width: 1120px;
+        table-layout: fixed;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+      }
+      thead th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: #0b0b0b;
+      }
+      th,
+      td {
+        padding: 12px 14px;
+        vertical-align: middle;
+        border: 0;
+      }
+      tbody td {
+        background: #0b0b0b;
+      }
+      tbody tr td:first-child {
+        border-radius: 8px 0 0 8px;
+      }
+      tbody tr td:last-child {
+        border-radius: 0 8px 8px 0;
+      }
+      tbody tr:hover td {
+        background: #101010;
+      }
+
+      /* Inputs más cómodos */
+      td input[type="text"],
+      td input[type="number"] {
+        width: 100%;
+        height: 40px;
+        padding: 8px 12px;
+        font-size: 15px;
+      }
+
+      /* Anchos por columna */
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 110px;
+      } /* ID */
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 170px;
+      } /* Categoría */
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 320px;
+      } /* Título */
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 140px;
+      } /* Precio */
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 120px;
+      } /* Stock */
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 380px; /* un poco más ancho */
+      }
+
+      th:nth-child(7),
+      td:nth-child(7) {
+        width: 180px;
+      } /* Acciones */
+
+      td:nth-child(6) img {
+        max-height: 64px;
+        border-radius: 8px;
+      }
+      /* Columna Foto un poco más ancha y botones pegados */
+      td:nth-child(6),
+      td:nth-child(6) {
+        width: 380px;
+      } /* + espacio para 2 botones */
+      /* Foto: que "Elegir" y "Borrar foto" queden tan juntos como Guardar/Borrar */
+      /* Foto: botones pegados, mismos tamaños y foco */
+      td:nth-child(6) .row {
+        gap: 8px;
+        align-items: center;
+        flex-wrap: nowrap;
+      }
+
+      /* el input ocupa solo el ancho del botón (sin “zona muerta”) */
+      td:nth-child(6) input[type="file"] {
+        width: 160px; /* evita cortar “archivo” */
+        max-width: none;
+        color: transparent; /* oculta el nombre del archivo */
+        border: 0;
+        outline: none; /* saca el contorno gris del control */
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        flex: 0 0 auto;
+      }
+
+      /* estilamos el botón del file como un botón normal */
+      td:nth-child(6) input[type="file"]::file-selector-button {
+        width: 160px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 0;
+        background: #ff7a00;
+        color: #111;
+        font: inherit;
+        font-size: 15px; /* igual que botones */
+        line-height: 24px; /* igual que botones */
+        text-align: center;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      /* mismo “ring” de foco que los otros */
+      td:nth-child(6) input[type="file"]:focus-within::file-selector-button {
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+
+      /* Botón “Borrar foto” con estilo consistente */
+      .btn-del-photo {
+        width: 160px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 0;
+        background: #6b7280;
+        color: #fff;
+        font: inherit;
+        font-size: 15px; /* igual que los otros */
+        line-height: 24px; /* igual que los otros */
+        text-align: center;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .btn-del-photo:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+
+      /* Responsive */
+      @media (max-width: 1200px) {
+        th:nth-child(3),
+        td:nth-child(3) {
+          width: 280px;
+        } /* Título */
+        th:nth-child(6),
+        td:nth-child(6) {
+          width: 240px;
+        } /* Foto   */
+      }
+      /* Acciones: mismos anchos/altos y foco */
+      td:nth-child(7) .right {
+        gap: 8px;
+      }
+      td:nth-child(7) .right .save,
+      td:nth-child(7) .right .del {
+        width: 160px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 0;
+        font: inherit;
+        font-weight: 800;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      td:nth-child(7) .right .save {
+        background: #ff7a00;
+        color: #111;
+      }
+      td:nth-child(7) .right .del {
+        background: #c0392b;
+        color: #fff;
+      }
+      td:nth-child(7) .right .save:focus-visible,
+      td:nth-child(7) .right .del:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+      /* Toast centrado */
+      .toast {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: #111;
+        color: #fff;
+        padding: 14px 18px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+        font-weight: 600;
+      }
+      .toast.show {
+        opacity: 1;
+      }
+      /* Modal de confirmación */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      }
+      .modal {
+        background: #0b0b0b;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        padding: 18px;
+        width: min(420px, 92vw);
+        color: #e5e7eb;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      }
+      .modal h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+      .modal p {
+        margin: 0 0 16px;
+        opacity: 0.9;
+      }
+      .modal .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .modal .btn {
+        height: 40px;
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 0;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .modal .btn-confirm {
+        background: #ff7a00;
+        color: #111;
+      }
+      .modal .btn-cancel {
+        background: #6b7280;
+        color: #fff;
+      }
+      .modal .btn:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+      /* File inputs (productos + stock): ocultar texto y dejar solo el botón */
+      .p-file,
+      .s-file {
+        width: 160px;
+        font-size: 0; /* <- oculta el texto del lado derecho */
+        max-width: none;
+        color: transparent;
+        border: 0;
+        outline: none;
+        padding: 0;
+        background: transparent;
+        overflow: hidden;
+        white-space: nowrap;
+        display: inline-block; /* asegura que respete el ancho */
+        cursor: pointer;
+      }
+
+      .p-file::file-selector-button,
+      .s-file::file-selector-button {
+        width: 160px;
+        height: 40px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 0;
+        background: #ff7a00;
+        color: #111;
+        font: inherit;
+        font-size: 15px; /* el botón sí tiene fuente */
+        line-height: 24px;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      .p-file:focus-within::file-selector-button,
+      .s-file:focus-within::file-selector-button {
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+      .btn-upload {
+        width: 160px;
+        height: 40px;
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 10px;
+        background: #ff7a00;
+        color: #111;
+        font: inherit;
+        font-size: 15px;
+        line-height: 24px;
+        cursor: pointer;
+      }
+      .btn-upload:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
+      }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Vista de login mínima (con <form>) -->
+      <div id="login-view" class="card">
+        <h2>Ingresar</h2>
+        <form id="admin-login-form" class="row">
+          <input id="email" type="email" placeholder="Email" required />
+          <input
+            id="password"
+            type="password"
+            placeholder="Contraseña"
+            required
+          />
+          <button type="submit">Entrar</button>
+        </form>
+        <p class="muted">Ingresá con tu usuario y contraseña.</p>
+      </div>
+      <div id="admin-app" style="display: none">
+        <div class="card" id="app">
+          <div class="row" style="justify-content: space-between">
+            <h2 style="margin: 0">Productos</h2>
+          </div>
+          <div class="row" style="margin: 8px 0; gap: 8px">
+            <button id="add">+ Nuevo</button>
+            <button id="logout" style="background: #444; color: #fff">
+              Salir
+            </button>
+          </div>
+
+          <!-- === PRODUCTOS (ADMIN) — misma UI que Stock === -->
+          <div id="prod-rows"></div>
+
+          <!-- === STOCK REAL / FOTOS (ADMIN) === -->
+          <section id="stock-admin" class="card" style="margin-top: 24px">
+            <h2>Stock real / Fotos</h2>
+            <button id="stock-new" class="btn btn-cta" style="margin: 8px 0">
+              + Nueva foto
+            </button>
+            <div id="stock-rows"></div>
+          </section>
+
+          <p class="muted">
+            Categorías válidas: Buzos, Gorras, Polares, Ópticas, Linternas,
+            Municiones, Pantalones…
+          </p>
+        </div>
+      </div>
+      <!-- /#admin-app -->
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://vtdwtjxadqtmwwhjjhey.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0ZHd0anhhZHF0bXd3aGpqaGV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MTE2MjcsImV4cCI6MjA3NTA4NzYyN30.Hqz6S3MvccPgOwavAnA19cf-1mrtzLE_fd5RAqAs7hk";
+      const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      function showToast(msg) {
+        let t = document.getElementById("toast");
+        if (!t) {
+          t = document.createElement("div");
+          t.id = "toast";
+          t.className = "toast";
+          document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(t._to);
+        t._to = setTimeout(() => t.classList.remove("show"), 1500);
+      }
+      // Botón "Elegir archivo" -> dispara el input oculto
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".btn-upload");
+        if (!btn) return;
+        const fid = btn.getAttribute("data-for");
+        document.getElementById(fid)?.click();
+      });
+
+      function confirmDialog(message, title = "Confirmar") {
+        return new Promise((resolve) => {
+          // backdrop
+          const back = document.createElement("div");
+          back.className = "modal-backdrop";
+          back.tabIndex = -1;
+
+          // modal
+          const box = document.createElement("div");
+          box.className = "modal";
+          box.innerHTML = `
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <div class="actions">
+        <button class="btn btn-cancel">Cancelar</button>
+        <button class="btn btn-confirm">Borrar</button>
+      </div>
+    `;
+          back.appendChild(box);
+          document.body.appendChild(back);
+
+          const onClose = (val) => {
+            back.remove();
+            resolve(val);
+          };
+
+          box.querySelector(".btn-confirm").onclick = () => onClose(true);
+          box.querySelector(".btn-cancel").onclick = () => onClose(false);
+          // cerrar con ESC
+          back.onkeydown = (e) => (e.key === "Escape" ? onClose(false) : null);
+          // bloquear click fuera (no cierra)
+          back.addEventListener("click", (e) => {
+            if (e.target === back) return; // ignora click fuera
+          });
+          // foco accesible
+          box.querySelector(".btn-cancel").focus();
+        });
+      }
+
+      // lista fija de categorías
+      const CATEGORIES = [
+        "Buzos",
+        "Gorras",
+        "Polares",
+        "Ópticas",
+        "Linternas",
+        "Municiones",
+        "Pantalones",
+      ];
+      let LAST_MAX_ID = 0; // voy a guardar el último ID usado
+      // === Login con Supabase Auth (NUEVO) ===
+      const loginView = document.getElementById("login-view");
+      const appView = document.getElementById("admin-app");
+
+      // Muestra/oculta vistas según sesión; si hay sesión, carga la UI del admin
+      async function refreshUI() {
+        const {
+          data: { session },
+        } = await supa.auth.getSession();
+        if (session) {
+          loginView.style.display = "none";
+          appView.style.display = "block";
+          // cargar las secciones del admin
+          listProductsAdmin();
+          listStockAdmin();
+        } else {
+          appView.style.display = "none";
+          loginView.style.display = "block";
+        }
+      }
+
+      // Submit del formulario de login
+      document
+        .getElementById("admin-login-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+          const { error } = await supa.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (error) {
+            alert(error.message || "Login inválido");
+            return;
+          }
+          refreshUI();
+        });
+
+      // Botón Salir (logout)
+      document.getElementById("logout").addEventListener("click", async () => {
+        await supa.auth.signOut();
+        refreshUI();
+      });
+
+      // Al cargar la página: decide qué mostrar
+      refreshUI();
+
+      // ====== (Opcional) utilitario: actualizar stock desde el admin autenticado ======
+      async function updateStock(id, restarCantidad) {
+        const { data: prod, error: e1 } = await supa
+          .from("products")
+          .select("stock")
+          .eq("id", id)
+          .single();
+        if (e1) {
+          alert("No pude leer stock");
+          return;
+        }
+
+        const nuevoStock = Math.max(
+          0,
+          (prod?.stock ?? 0) - Math.max(1, restarCantidad | 0)
+        );
+
+        const { error: e2 } = await supa
+          .from("products")
+          .update({ stock: nuevoStock })
+          .eq("id", id);
+        if (e2) {
+          alert("No se pudo actualizar stock");
+          return;
+        }
+
+        alert(`Stock actualizado a ${nuevoStock}`);
+      }
+
+      // === PRODUCTOS (ADMIN) — misma UI que "Stock real / Fotos" ===
+      const PRODUCTS_BUCKET = "products";
+      const $prodRows = document.getElementById("prod-rows");
+
+      function productRow(item = {}) {
+        const id = item.id ?? "";
+        const category = item.category ?? CATEGORIES[0];
+        const name = item.name ?? "";
+        const price = item.price ?? 0;
+        const stock = item.stock ?? 0;
+        const image_url = item.image_url ?? "";
+        const fid = `pf-${id || "new"}-${Math.random()
+          .toString(36)
+          .slice(2, 7)}`;
+
+        return `
+  <div class="row" data-id="${id}" data-img="${image_url || ""}"
+       style="display:grid;grid-template-columns:90px 160px 1fr 120px 100px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
+
+    <input class="p-id" type="number" value="${id}" ${
+          id ? "disabled" : ""
+        } title="ID">
+    <select class="p-cat">
+      ${CATEGORIES.map(
+        (c) =>
+          `<option value="${c}" ${
+            c === category ? "selected" : ""
+          }>${c}</option>`
+      ).join("")}
+    </select>
+    <input class="p-name"  placeholder="Título" value="${name}">
+    <input class="p-price" type="number" min="0" value="${price}">
+    <input class="p-stock" type="number" min="0" value="${stock}">
+    <div style="display:flex;gap:8px;align-items:center;">
+      ${
+        image_url
+          ? `<img src="${image_url}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12);">`
+          : `<div style="width:40px;height:40px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:#111"></div>`
+      }
+      <input id="${fid}" class="p-file" type="file" accept="image/*" style="display:none">
+<button type="button" class="btn-upload" data-for="${fid}">Elegir archivo</button>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:end;">
+      <button class="p-save">Guardar</button>
+      ${
+        id
+          ? `<button class="p-del" style="background:#6b7280;color:#fff;">Borrar</button>`
+          : ""
+      }
+    </div>
+  </div>`;
+      }
+
+      async function listProductsAdmin() {
+        const { data, error } = await supa
+          .from("products")
+          .select("*")
+          .order("id", { ascending: true });
+        if (error) {
+          alert(error.message);
+          return;
+        }
+
+        LAST_MAX_ID = (data || []).reduce(
+          (max, r) => Math.max(max, r.id || 0),
+          0
+        );
+        $prodRows.innerHTML = (data || []).map(productRow).join("");
+      }
+
+      // Botón “+ Nuevo”: inserta una fila vacía arriba con el próximo ID sugerido
+      document.getElementById("add").onclick = () => {
+        $prodRows.insertAdjacentHTML(
+          "afterbegin",
+          productRow({ id: LAST_MAX_ID + 1, stock: 0, price: 0 })
+        );
+      };
+
+      // Delegación de eventos (Guardar / Borrar) sobre la lista de filas
+      $prodRows.addEventListener("click", async (e) => {
+        const row = e.target.closest(".row");
+        if (!row) return;
+        const idEl = row.querySelector(".p-id");
+        const id = parseInt(idEl.value, 10);
+
+        // Guardar
+        if (e.target.classList.contains("p-save")) {
+          const category = row.querySelector(".p-cat").value.trim();
+          const name = row.querySelector(".p-name").value.trim();
+          const price = parseInt(
+            row.querySelector(".p-price").value || "0",
+            10
+          );
+          const stock = parseInt(
+            row.querySelector(".p-stock").value || "0",
+            10
+          );
+          if (!id) return alert("ID requerido");
+          if (!category) return alert("Elegí una categoría");
+          if (!name) return alert("Ingresá un título");
+
+          let image_url = row.getAttribute("data-img") || null;
+
+          // ¿archivo nuevo?
+          const file = row.querySelector(".p-file").files[0];
+          if (file) {
+            if (!/^image\//.test(file.type))
+              return alert("El archivo debe ser una imagen.");
+            if (file.size > 8 * 1024 * 1024)
+              return alert("La imagen supera 8MB.");
+            const cleanName = file.name.replace(/[^\w.\-]+/g, "_");
+            const key = `${id}/${Date.now()}_${cleanName}`;
+            const up = await supa.storage
+              .from(PRODUCTS_BUCKET)
+              .upload(key, file, { upsert: true, contentType: file.type });
+            if (up.error)
+              return alert(up.error.message || "Error subiendo imagen");
+            const pub = supa.storage
+              .from(PRODUCTS_BUCKET)
+              .getPublicUrl(up.data.path);
+            image_url = pub.data.publicUrl || image_url;
+          }
+
+          const payload = { id, category, name, price, stock, image_url };
+          const { error } = await supa
+            .from("products")
+            .upsert(payload, { onConflict: "id" });
+          if (error) return alert(error.message);
+
+          await listProductsAdmin();
+          showToast("Guardado");
+        }
+
+        // Borrar
+        if (e.target.classList.contains("p-del")) {
+          const ok = await confirmDialog(
+            "¿Querés borrar este producto completo? Esta acción no se puede deshacer.",
+            "Borrar producto"
+          );
+          if (!ok) return;
+
+          // intento borrar imagen del bucket si es pública
+          const img = row.getAttribute("data-img");
+          if (img) {
+            const m = img.match(/\/object\/public\/products\/(.+)$/);
+            if (m && m[1])
+              await supa.storage.from(PRODUCTS_BUCKET).remove([m[1]]);
+          }
+          const { error } = await supa.from("products").delete().eq("id", id);
+          if (error) return alert(error.message);
+
+          row.remove();
+          showToast("Eliminado");
+        }
+      });
+
+      // === STOCK REAL / FOTOS (ADMIN) ===
+      const STOCK_BUCKET = "stock"; // o 'products' si preferís reusar ese bucket
+      const $stockRows = document.getElementById("stock-rows");
+      const $stockNew = document.getElementById("stock-new");
+
+      function stockRow(item) {
+        const id = item?.id ?? "";
+        const vTitle = item?.title ?? "";
+        const vSort = item?.sort ?? 0;
+        const vVis = item?.visible ?? true;
+        const vUrl = item?.image_url ?? "";
+        const fid = `sf-${id || "new"}-${Math.random()
+          .toString(36)
+          .slice(2, 7)}`;
+
+        return `
+ <div class="row" data-id="${id}" style="display:grid;grid-template-columns:1fr 100px 90px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
+    <input class="s-title" placeholder="Título (opcional)" value="${vTitle}">
+    <input class="s-sort"  type="number" value="${vSort}" min="0" title="Orden">
+    <label style="display:flex;gap:6px;align-items:center;">
+      <input class="s-visible" type="checkbox" ${vVis ? "checked" : ""}> Visible
+    </label>
+    <div style="display:flex;gap:8px;align-items:center;">
+
+      <img src="${vUrl}" style="width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12);" onerror="this.style.display='none'">
+      <input id="${fid}" class="s-file" type="file" accept="image/*" style="display:none">
+<button type="button" class="btn-upload" data-for="${fid}">Elegir archivo</button>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:end;">
+      <button class="s-save">Guardar</button>
+      <button class="s-del" style="background:#6b7280;color:#fff;">Borrar</button>
+    </div>
+  </div>`;
+      }
+
+      async function listStockAdmin() {
+        const { data, error } = await supa
+          .from("stock_images")
+          .select("*")
+          .order("sort", { ascending: true })
+          .order("created_at", { ascending: false });
+        if (error) {
+          console.error(error);
+          return;
+        }
+        $stockRows.innerHTML = (data || []).map(stockRow).join("");
+      }
+
+      $stockNew?.addEventListener("click", async () => {
+        const { data, error } = await supa
+          .from("stock_images")
+          .insert({ title: "", image_url: "", sort: 0, visible: true })
+          .select()
+          .single();
+        if (!error) $stockRows.insertAdjacentHTML("afterbegin", stockRow(data));
+      });
+
+      // delegación de eventos (save / delete / upload)
+      $stockRows?.addEventListener("click", async (e) => {
+        const row = e.target.closest(".row");
+        if (!row) return;
+        const id = row.getAttribute("data-id");
+
+        if (e.target.classList.contains("s-save")) {
+          const title = row.querySelector(".s-title").value.trim();
+          const sort = parseInt(row.querySelector(".s-sort").value || "0", 10);
+          const visible = row.querySelector(".s-visible").checked;
+
+          // ¿archivo nuevo?
+          const file = row.querySelector(".s-file").files[0];
+          let image_url = null;
+
+          if (file) {
+            const path = `${Date.now()}_${file.name}`;
+            const up = await supa.storage
+              .from(STOCK_BUCKET)
+              .upload(path, file, { upsert: true });
+            if (up.error) {
+              alert("Error subiendo imagen");
+              return;
+            }
+            const pub = supa.storage.from(STOCK_BUCKET).getPublicUrl(path);
+            image_url = pub.data.publicUrl;
+          }
+
+          const payload = { title, sort, visible };
+          if (image_url) payload.image_url = image_url;
+
+          const { error } = await supa
+            .from("stock_images")
+            .update(payload)
+            .eq("id", id);
+          if (error) {
+            alert("Error guardando");
+            return;
+          }
+          listStockAdmin();
+        }
+
+        if (e.target.classList.contains("s-del")) {
+          const ok = await confirmDialog(
+            "¿Querés borrar esta foto? Esta acción no se puede deshacer.",
+            "Borrar producto"
+          );
+          if (!ok) return;
+
+          const { error } = await supa
+            .from("stock_images")
+            .delete()
+            .eq("id", id);
+          if (error) {
+            alert("Error borrando");
+            return;
+          }
+          row.remove();
+          showToast("Eliminado");
+        }
+      });
+    </script>
+  </body>
+</html>

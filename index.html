@@ -1,0 +1,712 @@
+<!-- index.html
+- Cambiar WHATSAPP_NUMBER en: data attributes de botones WhatsApp y <a id="whatsapp-float">
+- Cambiar CONTACT_EMAIL en: <form action="https://formsubmit.co/mi-email@ejemplo.com"> (buscar "CONTACT_EMAIL")
+- Editar categorías y productos en: data/products.json
+- Secciones a editar: <header>, <section id="hero">, <section id="indumentaria">, <section id="contacto">, <footer>
+-->
+<!DOCTYPE html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0b0b" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- TODO[SEO]: Descomentar y poner el dominio final cuando publique -->
+    <!-- <link rel="canonical" href="https://tu-dominio.com/" /> -->
+    <link
+      rel="preload"
+      as="image"
+      href="assets/CazandoAndo.webp"
+      imagesrcset="assets/CazandoAndo.webp 1920w"
+      imagesizes="100vw"
+    />
+    <title>CazandoAndo — Indumentaria y artículos de caza</title>
+    <meta
+      name="description"
+      content="CazandoAndo: indumentaria y artículos de caza. Minimalista, responsiva y con stock en tiempo real (MVP)."
+    />
+    <meta property="og:title" content="CazandoAndo" />
+    <meta
+      property="og:description"
+      content="Indumentaria y artículos de caza. Minimalista, responsiva y con stock visible."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="assets/CazandoAndo.webp" />
+
+    <!-- TODO[GA4]: Descomentar cuando tenga el Measurement ID real (formato G-XXXXXXXXXX).
+     Reemplazar G-XXXXXXX en la URL y en gtag('config', 'G-XXXXXXX') por el ID real del cliente. -->
+    <!--
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXX');
+</script>
+-->
+
+    <link rel="icon" type="image/webp" href="assets/favicon.webp" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* Filtros tipo "chips" */
+      .filters {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 8px 0 18px;
+      }
+      .filters .chip {
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: transparent;
+        color: #e5e7eb;
+        padding: 6px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.15s, border-color 0.15s, transform 0.03s;
+      }
+      .filters .chip:hover {
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+      .filters .chip.active {
+        background: #ff7a00;
+        color: #111;
+        border-color: transparent;
+      }
+
+      /* Grilla de productos */
+      .products-grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+      .card.product {
+        background: #0b0b0b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Altura automática y más alta */
+      .card.product .thumb {
+        aspect-ratio: 2 / 3; /* más alto en desktop */
+        overflow: hidden;
+        border-radius: 12px;
+        background: #0f172a;
+        cursor: default;
+      }
+
+      /* En móviles, todavía un poco más altas */
+      @media (max-width: 640px) {
+        .card.product .thumb {
+          aspect-ratio: 3 / 4; /* más alto en celus */
+        }
+      }
+
+      .card.product .thumb a {
+        display: block;
+      }
+      .card.product .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .card.product .body {
+        margin-top: 10px;
+      }
+      .card.product .title {
+        margin: 0 0 8px 0;
+        font-size: 1.05rem;
+      }
+      .card.product .meta {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        opacity: 0.9;
+      }
+      .card.product .price {
+        font-weight: 700;
+      }
+      .card.product .stock.ok {
+        color: #34d399;
+      } /* verde */
+      .card.product .stock.out {
+        color: #ef4444;
+      } /* rojo */
+      .card.product .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 12px;
+      }
+      .card.product .qty {
+        width: 64px;
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: #111;
+        color: #e5e7eb;
+      }
+    </style>
+    <!-- TODO[SEO/JSON-LD]: Descomentar cuando el sitio esté en dominio final.
+     Cambiar "url" y "logo" a el dominio real (https://midominio.com/...), revisar sameAs. -->
+    <!--
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "CazandoAndo",
+  "url": "https://tu-dominio.com",
+  "logo": "https://tu-dominio.com/assets/logo.webp",
+  "sameAs": [
+    "https://www.instagram.com/cazandoando_/",
+    "https://web.facebook.com/people/cazandoando_/100083345360487/",
+    "https://www.youtube.com/@cazandoando_"
+  ],
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "areaServed": "AR",
+      "availableLanguage": ["es"]
+    }
+  ]
+}
+</script>
+-->
+  </head>
+  <body>
+    <a class="skip-link" href="#indumentaria">Saltar al contenido</a>
+
+    <!-- Header/Nav: sticky, translúcido con blur. Placa rectangular "CAZANDOANDO" arriba a la izquierda -->
+    <header
+      id="top"
+      class="site-header"
+      role="banner"
+      aria-label="Barra de navegación principal"
+    >
+      <div class="nav-inner">
+        <a href="#hero" class="brand" aria-label="Ir al inicio">
+          <span class="brand-plate" aria-hidden="true">CAZANDOANDO</span>
+          <span class="sr-only">CazandoAndo</span>
+        </a>
+
+        <!-- Botón hamburguesa (móvil) -->
+        <button
+          id="menu-toggle"
+          class="menu-toggle"
+          aria-label="Abrir menú"
+          aria-expanded="false"
+          aria-controls="primary-nav"
+        >
+          <span class="bar"></span><span class="bar"></span
+          ><span class="bar"></span>
+        </button>
+
+        <nav
+          id="primary-nav"
+          class="primary-nav"
+          role="navigation"
+          aria-label="Navegación principal"
+        >
+          <ul>
+            <li><a href="#hero">Inicio</a></li>
+            <li><a href="#indumentaria">Indumentaria</a></li>
+            <li>
+              <a
+                href="https://www.instagram.com/cazandoando_/"
+                target="_blank"
+                rel="noopener"
+                aria-label="Abrir Instagram de CazandoAndo (Contacto)"
+                >Contacto</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Hero: fondo cover con overlay 50%, composición estilo Wix. CTA a Indumentaria/WhatsApp. Placa superior izquierda -->
+    <main id="content" role="main">
+      <section id="hero" class="hero" aria-label="Portada CazandoAndo">
+        <div
+          class="hero-bg"
+          role="img"
+          aria-label="Imagen temática de caza y naturaleza"
+        ></div>
+        <div class="hero-overlay" aria-hidden="true"></div>
+        <!-- REEMPLAZALO POR ESTE BLOQUE NUEVO (solo CTAs) -->
+        <div class="hero-content">
+          <div class="hero-ctas">
+            <a class="btn btn-cta" href="#indumentaria">Ver indumentaria</a>
+          </div>
+        </div>
+      </section>
+      <!-- Separador camo pegado al HERO -->
+      <div class="camo-sep" aria-hidden="true"></div>
+
+      <!-- Indumentaria: grilla responsive con estado de stock -->
+      <section
+        id="indumentaria"
+        class="section section-products"
+        aria-labelledby="indumentaria-title"
+      >
+        <div class="container">
+          <div class="section-header">
+            <h2 id="indumentaria-title">Indumentaria</h2>
+            <p class="section-sub">
+              Buzos, Gorras, Polares, Ópticas, Linternas, Municiones
+            </p>
+          </div>
+
+          <!-- Filtros por categoría (opcional) -->
+          <div
+            id="filters"
+            class="filters"
+            role="tablist"
+            aria-label="Filtrar por categoría"
+          ></div>
+          <div
+            id="products-grid"
+            class="products-grid"
+            role="list"
+            aria-live="polite"
+            aria-busy="true"
+          ></div>
+        </div>
+      </section>
+
+      <!-- Clientes conformes (galería de testimonios) -->
+      <section
+        id="clientes"
+        class="section section-testimonios"
+        aria-labelledby="clientes-title"
+      >
+        <div class="camo-band" aria-hidden="true"></div>
+
+        <div class="container">
+          <div class="section-header">
+            <h2 id="clientes-title">Clientes conformes</h2>
+            <p class="section-sub">Fotos reales usando CazandoAndo</p>
+          </div>
+
+          <div class="thumbs-grid" role="list">
+            <!-- Reemplazá/ajustá las rutas si tus archivos están en otra carpeta -->
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio1.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio1.webp"
+                alt="Cliente con campera CazandoAndo"
+                loading="lazy"
+                decoding="async"
+                width="640"
+                height="800"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio2.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio2.webp"
+                alt="Cliente con gorra CazandoAndo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio3.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio3.webp"
+                alt="Cliente con polar CazandoAndo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio4.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio4.webp"
+                alt="Detalle bordado logo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio5.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio5.webp"
+                alt="Cliente con equipo completo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio6.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio6.webp"
+                alt="Cliente en exterior"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio7.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio7.webp"
+                alt="Cliente con linterna táctica"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio8.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio8.webp"
+                alt="Cliente con óptica"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio9.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio9.webp"
+                alt="Detalle acabados"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio10.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio10.webp"
+                alt="Cliente con campera camo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio11.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio11.webp"
+                alt="Cliente con gorra camo"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio12.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio12.webp"
+                alt="Cliente con buzo verde"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio13.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio13.webp"
+                alt="Espalda con logo bordado"
+                loading="lazy"
+              />
+            </a>
+            <a
+              role="listitem"
+              class="thumb"
+              href="assets/testimonio14.webp"
+              data-lightbox
+            >
+              <img
+                src="assets/testimonio14.webp"
+                alt="Espalda con logo bordado"
+                loading="lazy"
+              />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stock / Últimos ingresos (dinámico con Supabase) -->
+      <section
+        id="stock"
+        class="section section-stock"
+        aria-labelledby="stock-title"
+      >
+        <div class="camo-band" aria-hidden="true"></div>
+
+        <div class="container">
+          <div class="section-header">
+            <h2 id="stock-title">Stock real / Últimos ingresos</h2>
+            <p class="section-sub">Fotos recientes de producción y entregas</p>
+          </div>
+
+          <!-- Contenedor dinámico -->
+          <div
+            id="stock-grid"
+            class="stock-grid"
+            role="list"
+            aria-live="polite"
+            aria-busy="true"
+          ></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer simple -->
+    <footer class="site-footer camo-full" role="contentinfo">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <strong>CazandoAndo</strong>
+          <p>Indumentaria y artículos de caza</p>
+          <a class="footer-home" href="#hero">Inicio</a>
+        </div>
+
+        <!-- Logo centro -->
+        <div class="footer-center">
+          <img
+            src="assets/logo.webp"
+            width="96"
+            height="96"
+            alt="Logo CazandoAndo"
+            class="footer-logo"
+            loading="lazy"
+          />
+        </div>
+
+        <!-- Redes (iconos) -->
+        <div class="socials" aria-label="Redes sociales">
+          <a
+            class="social-btn instagram"
+            href="https://www.instagram.com/cazandoando_/"
+            target="_blank"
+            rel="noopener"
+            aria-label="Instagram"
+          >
+            <!-- Instagram -->
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+              fill="currentColor"
+            >
+              <path
+                d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6zM18 6.7a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4z"
+              />
+            </svg>
+          </a>
+
+          <a
+            class="social-btn facebook"
+            href="https://web.facebook.com/people/cazandoando_/100083345360487/?ref=_xav_ig_profile_page_web#"
+            target="_blank"
+            rel="noopener"
+            aria-label="Facebook"
+          >
+            <!-- Facebook -->
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+              fill="currentColor"
+            >
+              <path
+                d="M13 22v-8h2.7l.4-3H13V9.2c0-.9.3-1.5 1.7-1.5H16V5.1C15.7 5 14.8 5 13.8 5 11.4 5 10 6.2 10 8.8V11H7v3h3v8h3z"
+              />
+            </svg>
+          </a>
+
+          <a
+            class="social-btn youtube"
+            href="https://www.youtube.com/@cazandoando_"
+            target="_blank"
+            rel="noopener"
+            aria-label="YouTube"
+          >
+            <!-- YouTube -->
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              aria-hidden="true"
+              fill="currentColor"
+            >
+              <path
+                d="M23 12s0-3.5-.4-5a3.1 3.1 0 0 0-2.2-2.2C18.9 4.3 12 4.3 12 4.3s-6.9 0-8.4.5A3.1 3.1 0 0 0 1.4 7C1 8.5 1 12 1 12s0 3.5.4 5a3.1 3.1 0 0 0 2.2 2.2c1.5.5 8.4.5 8.4.5s6.9 0 8.4-.5a3.1 3.1 0 0 0 2.2-2.2c.4-1.5.4-5 .4-5zM9.8 15.5v-7l6 3.5-6 3.5z"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-copy">
+        © <span id="year"></span> CazandoAndo. Todos los derechos reservados.
+      </div>
+    </footer>
+
+    <!-- Botón flotante WhatsApp -->
+    <a
+      id="whatsapp-float"
+      class="whatsapp-float"
+      href="https://wa.me/5493424485574"
+      target="_blank"
+      rel="noopener"
+      aria-label="Abrir chat de WhatsApp"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M20.52 3.48A11.94 11.94 0 0012.06 0C5.49 0 .16 5.33.16 11.9c0 2.1.55 4.15 1.6 5.95L0 24l6.3-1.65a11.85 11.85 0 005.76 1.48h.01c6.56 0 11.89-5.33 11.89-11.9 0-3.18-1.24-6.18-3.44-8.45zm-8.46 18.3h-.01a9.86 9.86 0 01-5-1.37l-.36-.21-3.75.98 1-3.65-.24-.38a9.84 9.84 0 01-1.53-5.32C2.17 6.45 6.53 2.1 12.05 2.1c2.63 0 5.1 1.02 6.96 2.88a9.8 9.8 0 012.9 6.93c0 5.52-4.35 9.87-9.85 9.87zm5.7-7.4c-.31-.15-1.83-.9-2.11-1a.55.55 0 00-.75.17c-.22.31-.86 1.06-1.06 1.28-.19.21-.39.23-.72.08-.31-.15-1.32-.49-2.5-1.56-.92-.82-1.54-1.83-1.72-2.14-.18-.31-.02-.48.14-.63.14-.14.31-.36.46-.54.15-.18.2-.31.31-.52.1-.21.05-.39-.02-.54-.08-.15-.72-1.73-.98-2.37-.26-.63-.52-.54-.72-.55h-.61c-.21 0-.54.08-.82.39-.28.31-1.07 1.04-1.07 2.54 0 1.5 1.09 2.95 1.24 3.15.15.21 2.15 3.28 5.21 4.6.73.32 1.29.51 1.73.65.73.23 1.39.2 1.91.12.58-.09 1.83-.75 2.09-1.48.26-.73.26-1.35.18-1.48-.08-.13-.29-.2-.6-.35z"
+        />
+      </svg>
+    </a>
+
+    <!-- Supabase global (no-module) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Tu JS del sitio -->
+    <script src="script.js"></script>
+
+    <script>
+      (function () {
+        const btn = document.getElementById("menu-toggle");
+        const nav = document.getElementById("primary-nav");
+        if (!btn || !nav) return;
+
+        const openMenu = () => {
+          btn.classList.add("is-open");
+          nav.classList.add("is-open");
+          btn.setAttribute("aria-expanded", "true");
+        };
+        const closeMenu = () => {
+          btn.classList.remove("is-open");
+          nav.classList.remove("is-open");
+          btn.setAttribute("aria-expanded", "false");
+        };
+        const isOpen = () => nav.classList.contains("is-open");
+
+        // Toggle
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          isOpen() ? closeMenu() : openMenu();
+        });
+
+        // Cerrar al tocar un link del menú
+        nav
+          .querySelectorAll("a")
+          .forEach((a) => a.addEventListener("click", closeMenu));
+
+        // Cerrar al tocar fuera
+        document.addEventListener("click", (e) => {
+          if (!isOpen()) return;
+          if (nav.contains(e.target) || btn.contains(e.target)) return;
+          closeMenu();
+        });
+
+        // Evitar que el click dentro del panel burbujee y lo cierre
+        nav.addEventListener("click", (e) => e.stopPropagation());
+
+        // Cerrar con ESC
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeMenu();
+        });
+
+        // Cerrar si agrandan la pantalla
+        window.addEventListener("resize", () => {
+          if (window.innerWidth > 560) closeMenu();
+        });
+      })();
+    </script>
+    <script>
+      /* Lightbox básico para anchors con [data-lightbox] */
+      (function () {
+        const links = document.querySelectorAll("a[data-lightbox]");
+        let lb;
+
+        function openLightbox(e) {
+          e.preventDefault();
+          const href = this.getAttribute("href");
+
+          if (!lb) {
+            lb = document.createElement("div");
+            lb.className = "lightbox";
+            lb.setAttribute("aria-hidden", "true");
+            lb.innerHTML = `
+        <button class="lightbox-close" aria-label="Cerrar">×</button>
+        <img alt="">
+      `;
+            document.body.appendChild(lb);
+
+            // cerrar al click en fondo o botón
+            lb.addEventListener("click", (ev) => {
+              if (
+                ev.target === lb ||
+                ev.target.classList.contains("lightbox-close")
+              ) {
+                closeLightbox();
+              }
+            });
+            // cerrar con ESC
+            document.addEventListener("keydown", (ev) => {
+              if (ev.key === "Escape") closeLightbox();
+            });
+          }
+
+          lb.querySelector("img").src = href;
+          lb.setAttribute("aria-hidden", "false");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeLightbox() {
+          if (!lb) return;
+          lb.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }
+
+        links.forEach((a) => a.addEventListener("click", openLightbox));
+      })();
+    </script>
+  </body>
+</html>

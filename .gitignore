@@ -1,0 +1,35 @@
+# SO / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Entornos / credenciales
+.env
+*.env
+.env.local
+.vercel/
+.netlify/
+
+# Node / builds (por si en el futuro agregamos tooling)
+node_modules/
+dist/
+build/
+.cache/
+.tmp/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Generados
+*.zip
+*.tar
+*.tgz
+
+# Sistemas de imágenes/edición
+*.psd
+*.ai

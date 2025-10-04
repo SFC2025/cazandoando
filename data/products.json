@@ -1,0 +1,159 @@
+{
+  "products": [
+    {
+      "id": 501,
+      "category": "Pantalones",
+      "name": "Pantalón táctico camo",
+      "price": 34990,
+      "stock": 10,
+      "image": "assets/products/pantalon-tactico-camo.webp"
+    },
+
+    {
+      "id": 701,
+      "category": "Gorras",
+      "name": "Gorra camo clásica",
+      "price": 12990,
+      "stock": 20,
+      "image": "assets/products/gorra-camo-clasica.webp"
+    },
+
+    {
+      "id": 801,
+      "category": "Buzos",
+      "name": "Buzo térmico camo",
+      "price": 38990,
+      "stock": 12,
+      "image": "assets/products/buzo-termico-camo.webp"
+    },
+
+    {
+      "id": 901,
+      "category": "Ópticas",
+      "name": "Óptica 1",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica1.webp"
+    },
+    {
+      "id": 902,
+      "category": "Ópticas",
+      "name": "Óptica 2",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica2.webp"
+    },
+    {
+      "id": 903,
+      "category": "Ópticas",
+      "name": "Óptica 3",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica3.webp"
+    },
+    {
+      "id": 904,
+      "category": "Ópticas",
+      "name": "Óptica 4",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica4.webp"
+    },
+    {
+      "id": 905,
+      "category": "Ópticas",
+      "name": "Óptica 5",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica5.webp"
+    },
+    {
+      "id": 906,
+      "category": "Ópticas",
+      "name": "Óptica 6",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica6.webp"
+    },
+    {
+      "id": 907,
+      "category": "Ópticas",
+      "name": "Óptica 7",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica7.webp"
+    },
+    {
+      "id": 908,
+      "category": "Ópticas",
+      "name": "Óptica 8",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica8.webp"
+    },
+    {
+      "id": 909,
+      "category": "Ópticas",
+      "name": "Óptica 9",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica9.webp"
+    },
+    {
+      "id": 910,
+      "category": "Ópticas",
+      "name": "Óptica 10",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica10.webp"
+    },
+    {
+      "id": 911,
+      "category": "Ópticas",
+      "name": "Óptica 11",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica11.webp"
+    },
+    {
+      "id": 912,
+      "category": "Ópticas",
+      "name": "Óptica 12",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica12.webp"
+    },
+    {
+      "id": 913,
+      "category": "Ópticas",
+      "name": "Óptica 13",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica13.webp"
+    },
+    {
+      "id": 914,
+      "category": "Ópticas",
+      "name": "Óptica 14",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica14.webp"
+    },
+    {
+      "id": 915,
+      "category": "Ópticas",
+      "name": "Óptica 15",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica15.webp"
+    },
+    {
+      "id": 916,
+      "category": "Ópticas",
+      "name": "Óptica 16",
+      "price": 159990,
+      "stock": 5,
+      "image": "assets/optica16.webp"
+    }
+  ]
+}
