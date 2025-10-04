@@ -383,6 +383,26 @@
         outline: 0;
         box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
       }
+      /* === Unifico scroll en móvil (un solo scroller dentro de #app) === */
+      #app {
+        overflow-x: auto;
+      } /* el contenedor principal scrollea */
+      #app .card {
+        overflow: visible;
+      } /* evita scroll secundario en hijos */
+
+      /* El panel de stock NO debe verse como tarjeta independiente */
+      .card #stock-admin {
+        background: transparent;
+        border: 0;
+        padding: 0;
+      }
+
+      /* Ambos listados tengan el mismo ancho mínimo para el scroll */
+      #prod-rows,
+      #stock-rows {
+        min-width: 1120px;
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -420,7 +440,7 @@
           <div id="prod-rows"></div>
 
           <!-- === STOCK REAL / FOTOS (ADMIN) === -->
-          <section id="stock-admin" class="card" style="margin-top: 24px">
+          <section id="stock-admin" style="margin-top: 24px">
             <h2>Stock real / Fotos</h2>
             <button id="stock-new" class="btn btn-cta" style="margin: 8px 0">
               + Nueva foto
