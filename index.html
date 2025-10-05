@@ -14,13 +14,17 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- TODO[SEO]: Descomentar y poner el dominio final cuando publique -->
     <!-- <link rel="canonical" href="https://tu-dominio.com/" /> -->
+    <!-- Preload del LCP (hero) con prioridad y variantes -->
+    <!-- Preload del LCP (hero) con prioridad -->
     <link
       rel="preload"
       as="image"
+      fetchpriority="high"
       href="assets/CazandoAndo.webp"
       imagesrcset="assets/CazandoAndo.webp 1920w"
       imagesizes="100vw"
     />
+
     <title>CazandoAndo — Indumentaria y artículos de caza</title>
     <meta
       name="description"
@@ -47,7 +51,12 @@
 -->
 
     <link rel="icon" type="image/webp" href="assets/favicon.webp" />
-    <link rel="stylesheet" href="style.css?v=1" />
+    <link rel="stylesheet" href="style.css?v=2" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+      defer
+    ></script>
+    <script src="script.js" defer></script>
 
     <style>
       /* Filtros tipo "chips" */
@@ -608,11 +617,6 @@
         />
       </svg>
     </a>
-
-    <!-- Supabase global (no-module) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Tu JS del sitio -->
-    <script src="script.js"></script>
 
     <script>
       (function () {
