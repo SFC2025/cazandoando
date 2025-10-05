@@ -404,56 +404,62 @@
         min-width: 1120px;
       }
       /* === Encabezados de listas (Productos / Stock) === */
-.grid-head {
-  display: grid;
-  gap: 8px;
-  align-items: center;
-  margin: 6px 0 4px;
-  position: sticky; /* “pegado” si scrolleás horizontal */
-  left: 0;
-  z-index: 2;
+      .grid-head {
+        display: grid;
+        gap: 8px;
+        align-items: center;
+        margin: 6px 0 4px;
+        position: sticky; /* “pegado” si scrolleás horizontal */
+        left: 0;
+        z-index: 2;
 
-  /* 👇 CLAVE: que el encabezado mida lo mismo que las filas */
-  min-width: 1120px;          /* igual que #prod-rows y #stock-rows */
-  width: 100%;
-}
+        /* 👇 CLAVE: que el encabezado mida lo mismo que las filas */
+        min-width: 1120px; /* igual que #prod-rows y #stock-rows */
+        width: 100%;
+      }
 
-/* 👇 Cada celda del encabezado respeta exactamente el ancho de su columna */
-.grid-head > * {
-  box-sizing: border-box;     /* padding/borde NO agrandan la columna */
-  width: 100%;                /* llena su pista del grid */
-  min-width: 0;               /* permite encoger como la fila */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+      /* 👇 Cada celda del encabezado respeta exactamente el ancho de su columna */
+      .grid-head > * {
+        box-sizing: border-box; /* padding/borde NO agrandan la columna */
+        width: 100%; /* llena su pista del grid */
+        min-width: 0; /* permite encoger como la fila */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-.grid-head span {
-  display: block;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #0b0b0b;
-  border: 1px solid rgba(255,255,255,.12);
-  color: #e5e7eb;
-}
+      .grid-head span {
+        display: block;
+        font-weight: 800;
+        font-size: 13px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #0b0b0b;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #e5e7eb;
+      }
 
-/* Misma grilla que las filas reales (coincide con los inline-styles de cada row) */
-.prod-head {
-  grid-template-columns: 90px 160px 1fr 120px 100px max-content 160px;
-}
-.stock-head {
-  grid-template-columns: 1fr 100px 90px max-content 160px;
-}
+      /* Encabezado Productos: “Nombre del producto” más largo */
+      .prod-head {
+        /* ID | Categoría | Nombre | Precio | Stock | Foto | Acciones */
+        grid-template-columns: 90px 160px 360px 120px 100px max-content 160px;
+      }
 
-/* En pantallas más angostas coincide con tus overrides */
-@media (max-width: 1200px) {
-  .prod-head {
-    grid-template-columns: 90px 160px 1fr 120px 100px 240px 160px;
-  }
-}
+      /* Encabezado Stock/Fotos: “Nombre del producto” más largo */
+      .stock-head {
+        /* Nombre | Orden | Visible | Foto | Acciones */
+        grid-template-columns: 420px 100px 90px max-content 160px;
+      }
 
+      /* Ajuste en pantallas un poco más angostas */
+      @media (max-width: 1200px) {
+        .prod-head {
+          grid-template-columns: 90px 160px 320px 120px 100px max-content 160px;
+        }
+        .stock-head {
+          grid-template-columns: 360px 100px 90px max-content 160px;
+        }
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -488,39 +494,39 @@
           </div>
 
           <!-- === PRODUCTOS (ADMIN) — misma UI que Stock === -->
-<!-- Encabezado de columnas -->
-<div class="grid-head prod-head">
-  <span>ID</span>
-  <span>Categoría</span>
-  <span>Nombre del producto</span>
-  <span>Precio</span>
-  <span>Stock</span>
-  <span>Foto</span>
-  <span>Acciones</span>
-</div>
+          <!-- Encabezado de columnas -->
+          <div class="grid-head prod-head">
+            <span>ID</span>
+            <span>Categoría</span>
+            <span>Nombre del producto</span>
+            <span>Precio</span>
+            <span>Stock</span>
+            <span>Foto</span>
+            <span>Acciones</span>
+          </div>
 
-<!-- Filas -->
-<div id="prod-rows"></div>
-
+          <!-- Filas -->
+          <div id="prod-rows"></div>
 
           <!-- === STOCK REAL / FOTOS (ADMIN) === -->
           <section id="stock-admin" style="margin-top: 24px">
-  <h2>Stock real / Fotos</h2>
-  <button id="stock-new" class="btn btn-cta" style="margin: 8px 0">+ Nueva foto</button>
+            <h2>Stock real / Fotos</h2>
+            <button id="stock-new" class="btn btn-cta" style="margin: 8px 0">
+              + Nueva foto
+            </button>
 
-  <!-- Encabezado de columnas -->
-  <div class="grid-head stock-head">
-    <span>Nombre del producto</span>
-    <span>Orden</span>
-    <span>Visible</span>
-    <span>Foto</span>
-    <span>Acciones</span>
-  </div>
+            <!-- Encabezado de columnas -->
+            <div class="grid-head stock-head">
+              <span>Nombre del producto</span>
+              <span>Orden</span>
+              <span>Visible</span>
+              <span>Foto</span>
+              <span>Acciones</span>
+            </div>
 
-  <!-- Filas -->
-  <div id="stock-rows"></div>
-</section>
-
+            <!-- Filas -->
+            <div id="stock-rows"></div>
+          </section>
 
           <p class="muted">
             Categorías válidas: Buzos, Gorras, Polares, Ópticas, Linternas,
@@ -701,7 +707,7 @@
 
         return `
   <div class="row" data-id="${id}" data-img="${image_url || ""}"
-       style="display:grid;grid-template-columns:90px 160px 1fr 120px 100px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
+       style="display:grid;grid-template-columns:90px 160px 360px 120px 100px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
 
     <input class="p-id" type="number" value="${id}" ${
           id ? "disabled" : ""
@@ -856,7 +862,7 @@
           .slice(2, 7)}`;
 
         return `
- <div class="row" data-id="${id}" style="display:grid;grid-template-columns:1fr 100px 90px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
+ <div class="row" data-id="${id}" style="display:grid;grid-template-columns:420px 100px 90px max-content 160px;gap:8px;align-items:center;margin:10px 0;">
     <input class="s-title" placeholder="Título (opcional)" value="${vTitle}">
     <input class="s-sort"  type="number" value="${vSort}" min="0" title="Orden">
     <label style="display:flex;gap:6px;align-items:center;">
