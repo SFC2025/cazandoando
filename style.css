@@ -158,10 +158,21 @@ a {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-image: url("assets/CazandoAndo.webp");
+
+  /* Fallback: la más grande */
+  background-image: url("assets/hero-1920.webp");
+
+  /* Elección automática por ancho */
+  background-image: image-set(
+    url("assets/hero-480.webp") 480w,
+    url("assets/hero-768.webp") 768w,
+    url("assets/hero-1200.webp") 1200w,
+    url("assets/hero-1920.webp") 1920w
+  );
+
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: 50% 62%; /* base: muestra mejor el logo */
+  background-position: 50% 62%;
   z-index: -2;
   filter: none;
 }

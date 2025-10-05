@@ -9,6 +9,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://vtdwtjxadqtmwwhjjhey.supabase.co"
+      crossorigin
+    />
+    <link
+      rel="preconnect"
+      href="https://vtdwtjxadqtmwwhjjhey.supabase.co/storage/v1/object/public"
+      crossorigin
+    />
     <meta name="theme-color" content="#0b0b0b" />
     <meta name="color-scheme" content="dark" />
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -20,8 +31,12 @@
       rel="preload"
       as="image"
       fetchpriority="high"
-      href="assets/CazandoAndo.webp"
-      imagesrcset="assets/CazandoAndo.webp 1920w"
+      href="assets/hero-1920.webp"
+      imagesrcset="
+    assets/hero-480.webp 480w,
+    assets/hero-768.webp 768w,
+    assets/hero-1200.webp 1200w,
+    assets/hero-1920.webp 1920w"
       imagesizes="100vw"
     />
 
@@ -716,6 +731,13 @@
 
         links.forEach((a) => a.addEventListener("click", openLightbox));
       })();
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/cazandoando/sw.js")
+          .catch(console.error);
+      }
     </script>
   </body>
 </html>
