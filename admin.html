@@ -538,8 +538,9 @@
           </section>
 
           <p class="muted">
-            Categorías válidas: Buzos, Gorras, Polares, Ópticas, Linternas,
-            Municiones, Pantalones…
+            Categorías válidas: Buzo polar, Pantalones / Bermudas cargo,
+            Remeras, Gorras; Ópticas, Linternas, Municiones; Yerberas, Termos,
+            Vasos térmicos.
           </p>
         </div>
       </div>
@@ -611,16 +612,25 @@
         });
       }
 
-      // lista fija de categorías
+      // Categorías dinámicas desde Supabase con fallback
+      // lista fija de categorías (ajustada a tres secciones)
       const CATEGORIES = [
-        "Buzos",
+        "Buzo polar",
+        "Pantalones / Bermudas cargo",
+        "Remeras",
         "Gorras",
-        "Polares",
+
         "Ópticas",
         "Linternas",
         "Municiones",
-        "Pantalones",
+
+        "Yerberas",
+        "Termos",
+        "Vasos térmicos",
       ];
+
+      // (removido) Recargar categorías – botón eliminado
+
       let LAST_MAX_ID = 0; // voy a guardar el último ID usado
       // === Login con Supabase Auth (NUEVO) ===
       const loginView = document.getElementById("login-view");
@@ -634,7 +644,7 @@
         if (session) {
           loginView.style.display = "none";
           appView.style.display = "block";
-          // cargar las secciones del admin
+          // categorías fijas
           listProductsAdmin();
           listStockAdmin();
         } else {

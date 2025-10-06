@@ -134,116 +134,184 @@
   // Render de productos
   const grid = document.getElementById("products-grid");
   let products = [];
-  let stockState = loadStockFromStorage(); // { id: number }
-
-  // Filtros dinámicos (se construyen desde las categorías del JSON)
-  const filtersWrap = document.getElementById("filters");
-
-  // Un solo normalizador para todo el archivo
-  const normalize = (s) =>
-    String(s || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
+  // Sin estado local de stock — la UI refleja exactamente lo de Supabase
+  let stockState = {};
 
   function renderFilters(list) {
-    if (!filtersWrap) return;
-    const cats = Array.from(new Set(list.map((p) => p.category || "Otros")));
+    // Mapeo fijo: categoría -> sección (tres secciones)
+    const SECTION_BY_CATEGORY = {
+      "Buzo polar": "Indumentarias",
+      "Pantalones / Bermudas cargo": "Indumentarias",
+      Remeras: "Indumentarias",
+      Gorras: "Indumentarias",
 
-    const html = [
-      `<button class="filter-btn is-active" data-filter="all" role="tab" aria-selected="true">Todo</button>`,
-      ...cats.map(
-        (c) =>
-          `<button class="filter-btn" data-filter="${c}" role="tab" aria-selected="false">${c}</button>`
-      ),
-    ].join("");
+      Ópticas: "Artículos de caza",
+      Linternas: "Artículos de caza",
+      Municiones: "Artículos de caza",
 
-    filtersWrap.innerHTML = html;
+      Yerberas: "Mate",
+      Termos: "Mate",
+      "Vasos térmicos": "Mate",
+    };
 
-    // Listeners
-    filtersWrap.querySelectorAll(".filter-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        filtersWrap.querySelectorAll(".filter-btn").forEach((b) => {
-          b.classList.remove("is-active");
-          b.setAttribute("aria-selected", "false");
-        });
-        btn.classList.add("is-active");
-        btn.setAttribute("aria-selected", "true");
+    // Subcategorías visibles por sección
+    const SUBCATS = {
+      Indumentarias: [
+        "*",
+        "Buzo polar",
+        "Pantalones / Bermudas cargo",
+        "Remeras",
+        "Gorras",
+      ],
+      "Artículos de caza": ["*", "Ópticas", "Linternas", "Municiones"],
+      Mate: ["*", "Yerberas", "Termos", "Vasos térmicos"],
+    };
 
-        filterByCategory(btn.dataset.filter);
-        localStorage.setItem("ca_filter", btn.dataset.filter);
+    const $sections = document.getElementById("filters");
+    const $sub = document.getElementById("subfilters");
+    if (!$sections) return;
 
-        document
-          .getElementById("indumentaria")
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    let SELECTED_SECTION = "*";
+    let SELECTED_SUBCAT = "*";
+
+    // Botones de SECCIÓN (orden fijo)
+    const order = ["*", "Indumentarias", "Artículos de caza", "Mate"];
+
+    $sections.innerHTML = order
+      .map((s) => {
+        const label = s === "*" ? "Todos" : s;
+        const isActive = s === "*";
+        return `<button class="filter-btn ${
+          isActive ? "is-active" : ""
+        }" data-section="${s}" role="tab" aria-selected="${isActive}">${label}</button>`;
+      })
+      .join("");
+
+    function setSubfilters(section) {
+      const list = SUBCATS[section] || [];
+      if (!list.length || section === "*") {
+        $sub.style.display = "none";
+        $sub.innerHTML = "";
+        SELECTED_SUBCAT = "*";
+        return;
+      }
+      $sub.style.display = "flex";
+      $sub.innerHTML = list
+        .map(
+          (sc, i) =>
+            `<button class="filter-btn ${
+              i === 0 ? "is-active" : ""
+            }" data-sub="${sc}" role="tab" aria-selected="${i === 0}">${
+              sc === "*" ? "Todas" : sc
+            }</button>`
+        )
+        .join("");
+    }
+
+    function applyFilters() {
+      const cards = document.querySelectorAll(".product-card[data-section]");
+      let visible = 0;
+      cards.forEach((card) => {
+        const sec = card.dataset.section || "";
+        const sub = card.dataset.sub || "";
+        const okSec = SELECTED_SECTION === "*" || sec === SELECTED_SECTION;
+        const okSub = SELECTED_SUBCAT === "*" || sub === SELECTED_SUBCAT;
+        const show = okSec && okSub;
+        card.style.display = show ? "" : "none";
+        if (show) visible++;
       });
+      // Mensaje vacío
+      const grid = document.getElementById("products-grid");
+      grid?.querySelectorAll(".empty-state")?.forEach((n) => n.remove());
+      if (grid && !visible) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.textContent = "No hay productos en esta categoría por el momento.";
+        p.style.margin = "8px 0 0";
+        p.style.opacity = ".85";
+        grid.appendChild(p);
+      }
+    }
+
+    // Listeners sección
+    $sections.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-section]");
+      if (!b) return;
+      SELECTED_SECTION = b.dataset.section;
+      SELECTED_SUBCAT = "*";
+
+      // activar visualmente
+      $sections.querySelectorAll(".filter-btn").forEach((x) => {
+        x.classList.remove("is-active");
+        x.setAttribute("aria-selected", "false");
+      });
+      b.classList.add("is-active");
+      b.setAttribute("aria-selected", "true");
+
+      setSubfilters(SELECTED_SECTION);
+      applyFilters();
+
+      document
+        .getElementById("indumentaria")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    // Mostrar todo al cargar (evita quedar “pegado” a un filtro previo)
-    filterByCategory("all");
-    // restaurar filtro si el usuario vuelve (sin scrollear)
-    const last = localStorage.getItem("ca_filter") || "all";
-    const lastBtn = filtersWrap.querySelector(`[data-filter="${last}"]`);
-    if (lastBtn) {
-      filtersWrap.querySelectorAll(".filter-btn").forEach((b) => {
-        b.classList.remove("is-active");
-        b.setAttribute("aria-selected", "false");
+    // Listeners subcategoría
+    $sub?.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-sub]");
+      if (!b) return;
+      SELECTED_SUBCAT = b.dataset.sub;
+
+      $sub.querySelectorAll(".filter-btn").forEach((x) => {
+        x.classList.remove("is-active");
+        x.setAttribute("aria-selected", "false");
       });
-      lastBtn.classList.add("is-active");
-      lastBtn.setAttribute("aria-selected", "true");
-      filterByCategory(last); // aplicamos el filtro sin hacer scroll
-    }
+      b.classList.add("is-active");
+      b.setAttribute("aria-selected", "true");
+
+      applyFilters();
+    });
+
+    // 1ª carga: sin subfiltros
+    setSubfilters("*");
+    applyFilters();
+
+    // === Al renderizar productos, vamos a setear data-section/sub según su categoría ===
+    // Guardamos el mapeo para reuso en renderProducts:
+    window.__CA_SECTION_BY_CATEGORY__ = SECTION_BY_CATEGORY;
   }
 
   async function fetchProducts() {
-    // 1) Supabase (REST)
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/products?select=id,category,name,price,stock,image_url&order=id.asc`,
-        {
-          headers: {
-            apikey: SUPABASE_ANON_KEY,
-            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          },
-          cache: "no-store",
-        }
-      );
-      if (res.ok) {
-        const rows = await res.json();
-        return rows.map((r) => ({
-          id: r.id,
-          category: r.category,
-          name: r.name,
-          price: r.price,
-          stock: r.stock,
-          image: r.image_url || "assets/placeholder.webp",
-        }));
+    // Solo Supabase (sin respaldo local para evitar stocks “de prueba”)
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/products?select=id,category,name,price,stock,image_url&order=id.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        cache: "no-store",
       }
-    } catch (_) {}
-
-    // 2) Respaldo local
-    const res = await fetch(PRODUCTS_JSON, { cache: "no-store" });
-    const data = await res.json();
-    return Array.isArray(data) ? data : data.products || [];
+    );
+    if (!res.ok) throw new Error("No pude leer productos desde Supabase");
+    const rows = await res.json();
+    return rows.map((r) => ({
+      id: r.id,
+      category: r.category,
+      name: r.name,
+      price: r.price,
+      stock: r.stock,
+      image: r.image_url || "assets/placeholder.webp",
+    }));
   }
-
   function loadStockFromStorage() {
-    try {
-      const raw = localStorage.getItem("ca_stock");
-      return raw ? JSON.parse(raw) : {};
-    } catch (_) {
-      return {};
-    }
-  }
+    return {};
+  } // no-op
   function saveStockToStorage() {
-    try {
-      localStorage.setItem("ca_stock", JSON.stringify(stockState));
-    } catch (_) {}
+    /* no-op */
   }
-
   function getCurrentStock(p) {
-    const overridden = stockState[p.id];
-    return typeof overridden === "number" ? overridden : p.stock;
+    return Number(p.stock) || 0; // se usa solo el stock real
   }
 
   function renderProducts(list) {
@@ -290,7 +358,7 @@
       `;
       const buyBtn = card.querySelector(".buy-btn");
       const qtyInput = card.querySelector(".qty");
-      // Comprar: descuenta stock local y abre WhatsApp Business con mensaje
+      // Comprar: NO toca el stock local; solo abre WhatsApp con el mensaje
       buyBtn?.addEventListener("click", () => {
         const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
         const stockNow = getCurrentStock(p);
@@ -299,31 +367,10 @@
           return;
         }
 
-        // 1) Descontar stock (MVP local)
-        stockState[p.id] = stockNow - qty;
-        saveStockToStorage();
-
-        // 2) Actualizar UI de esta tarjeta
-        const badge = card.querySelector(".badge");
-        const sc = card.querySelector(".stock-count");
-        const newStock = getCurrentStock(p);
-        const nowAvail = newStock > 0;
-        if (badge) {
-          badge.textContent = nowAvail ? "Disponible" : "Agotado";
-          badge.className = "badge " + (nowAvail ? "ok" : "out");
-        }
-        if (sc) sc.textContent = `Stock: ${Math.max(0, newStock)}`;
-        if (!nowAvail) {
-          buyBtn.disabled = true;
-          qtyInput.disabled = true;
-        }
-
-        // 3) WhatsApp prellenado
         const msg =
           `Hola! Vengo de la web CazandoAndo.\n` +
           `Quiero comprar ${qty} × ${p.name} (ID ${p.id}).\n` +
           `Precio $${p.price.toLocaleString("es-AR")} c/u.\n` +
-          `Stock restante mostrado: ${Math.max(0, newStock)}.\n` +
           `¿Seguimos?`;
         const waURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
           msg
@@ -341,35 +388,17 @@
       });
 
       card.dataset.category = p.category;
+
+      // Derivar sección y subcategoría desde la categoría
+      const map = window.__CA_SECTION_BY_CATEGORY__ || {};
+      card.dataset.section = map[p.category] || "";
+      card.dataset.sub = p.category || "";
+
       grid.appendChild(card);
     });
     grid.removeAttribute("aria-busy");
   }
 
-  function filterByCategory(cat) {
-    if (!grid) return;
-    const target = normalize(cat);
-    let visible = 0;
-
-    // limpiar mensajes vacíos previos si hubiera más de uno
-    grid.querySelectorAll(".empty-state")?.forEach((n) => n.remove());
-
-    grid.querySelectorAll(".product-card").forEach((it) => {
-      const match =
-        target === "all" || normalize(it.dataset.category) === target;
-      it.style.display = match ? "" : "none";
-      if (match) visible++;
-    });
-
-    if (!visible) {
-      const p = document.createElement("p");
-      p.className = "empty-state";
-      p.textContent = "No hay productos en esta categoría por el momento.";
-      p.style.margin = "8px 0 0";
-      p.style.opacity = ".85";
-      grid.appendChild(p);
-    }
-  }
   // ==== STOCK real / Últimos ingresos ====
   async function loadStock() {
     const $stockGrid = document.getElementById("stock-grid");
@@ -424,11 +453,9 @@
       }
 
       products = await fetchProducts();
-      renderProducts(products);
-      renderFilters(products);
-
-      //cargar galería de stock
-      loadStock();
+      renderFilters(products); // 1) crea UI + mapa sección/sub
+      renderProducts(products); // 2) pinta cards con data-section/sub
+      loadStock(); // 3) galería de stock
     } catch (err) {
       console.error("Error cargando productos:", err);
       grid.innerHTML = `<p>Ocurrió un problema al cargar los productos. Reintentá más tarde.</p>`;
