@@ -611,6 +611,40 @@
           box.querySelector(".btn-cancel").focus();
         });
       }
+      // Modal de aviso simple (mismo estilo)
+      function infoDialog(message, title = "Aviso") {
+        return new Promise((resolve) => {
+          const back = document.createElement("div");
+          back.className = "modal-backdrop";
+          back.tabIndex = -1;
+
+          const box = document.createElement("div");
+          box.className = "modal";
+          box.innerHTML = `
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <div class="actions">
+        <button class="btn btn-confirm">Aceptar</button>
+      </div>
+    `;
+          back.appendChild(box);
+          document.body.appendChild(back);
+
+          const onClose = () => {
+            back.remove();
+            resolve(true);
+          };
+
+          box.querySelector(".btn-confirm").onclick = onClose;
+          back.onkeydown = (e) => (e.key === "Escape" ? onClose() : null);
+          // bloquear click fuera (no cierra)
+          back.addEventListener("click", (e) => {
+            if (e.target === back) return; // ignora click fuera
+          });
+          // foco accesible
+          box.querySelector(".btn-confirm").focus();
+        });
+      }
 
       // Categorías dinámicas desde Supabase con fallback
       // lista fija de categorías (ajustada a tres secciones)
@@ -806,9 +840,18 @@
             row.querySelector(".p-stock").value || "0",
             10
           );
-          if (!id) return alert("ID requerido");
-          if (!category) return alert("Elegí una categoría");
-          if (!name) return alert("Ingresá un título");
+          if (!id) {
+            await infoDialog("Ingresá un ID numérico.", "Dato faltante");
+            return;
+          }
+          if (!category) {
+            await infoDialog("Elegí una categoría.", "Dato faltante");
+            return;
+          }
+          if (!name) {
+            await infoDialog("Ingresá un título.", "Dato faltante");
+            return;
+          }
 
           let image_url = row.getAttribute("data-img") || null;
 
