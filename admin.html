@@ -855,7 +855,6 @@
 
           let image_url = row.getAttribute("data-img") || null;
 
-          // ¿archivo nuevo?
           const file = row.querySelector(".p-file").files[0];
           if (file) {
             if (!/^image\//.test(file.type))
@@ -893,7 +892,6 @@
           );
           if (!ok) return;
 
-          // intento borrar imagen del bucket si es pública
           const img = row.getAttribute("data-img");
           if (img) {
             const m = img.match(/\/object\/public\/products\/(.+)$/);
