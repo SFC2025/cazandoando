@@ -8,7 +8,10 @@
 <html lang="es-AR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
 
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
@@ -772,5 +775,25 @@
           .catch(console.error);
       }
     </script>
+    <!-- === Modal Galería por producto === -->
+    <div id="product-gallery" class="pg-overlay" hidden>
+      <div
+        class="pg-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pg-title"
+      >
+        <button class="pg-close" type="button" aria-label="Cerrar galería">
+          ✕
+        </button>
+        <h3 id="pg-title" class="pg-title">Galería</h3>
+        <div
+          id="pg-grid"
+          class="pg-grid"
+          aria-live="polite"
+          aria-busy="true"
+        ></div>
+      </div>
+    </div>
   </body>
 </html>

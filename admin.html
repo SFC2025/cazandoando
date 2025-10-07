@@ -16,7 +16,7 @@
     />
     <meta name="robots" content="noindex,nofollow" />
     <title>Panel CazandoAndo</title>
-
+    <link rel="stylesheet" href="./style.css?v=2025-07-10-1520" />
     <style>
       /* Base */
       body {
@@ -267,37 +267,39 @@
         outline: 0;
         box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
       }
-      /* Toast centrado */
+      /* Toast discreto (abajo, estilo pill) */
       .toast {
         position: fixed;
         left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        background: #111;
-        color: #fff;
-        padding: 14px 18px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        z-index: 9999;
+        bottom: 24px;
+        transform: translateX(-50%);
+        background: #0b0b0b;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #e5e7eb;
+        padding: 10px 14px;
+        border-radius: 999px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        z-index: 10000;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.2s ease;
+        transition: opacity 0.2s ease, transform 0.2s ease;
         font-weight: 600;
       }
       .toast.show {
         opacity: 1;
       }
-      /* Modal de confirmación */
+
+      /* Modal de confirmación (override a prueba de superposiciones) */
       .modal-backdrop {
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.55);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
+        display: grid;
+        place-items: center;
+        z-index: 2147483647 !important; /* siempre arriba de todo */
       }
       .modal {
+        position: relative;
         background: #0b0b0b;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
@@ -305,7 +307,13 @@
         width: min(420px, 92vw);
         color: #e5e7eb;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        z-index: 2147483647 !important;
+        pointer-events: auto;
       }
+      .modal * {
+        pointer-events: auto;
+      }
+
       .modal h3 {
         margin: 0 0 10px;
         font-size: 18px;
@@ -314,6 +322,7 @@
         margin: 0 0 16px;
         opacity: 0.9;
       }
+
       .modal .actions {
         display: flex;
         gap: 10px;
@@ -339,6 +348,7 @@
         outline: 0;
         box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
       }
+
       /* File inputs (productos + stock): ocultar texto y dejar solo el botón */
       .p-file,
       .s-file {
@@ -469,6 +479,12 @@
           grid-template-columns: 420px 100px 90px max-content 160px;
         }
       }
+      /* FIX: respetar [hidden] del diálogo viejo */
+      .dlg-overlay[hidden] {
+        display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -517,6 +533,141 @@
           <!-- Filas -->
           <div id="prod-rows"></div>
 
+          <!-- === MEDIA POR PRODUCTO === -->
+          <section id="pm-admin" class="card" style="margin-top: 24px">
+            <h2>Galería por producto</h2>
+
+            <!-- Controles: producto/recargar -->
+            <div class="pm-ctrls pm-ctrls--product">
+              <label>
+                <span>Producto</span>
+                <select id="pm-product"></select>
+              </label>
+              <button id="pm-reload" class="btn">Recargar</button>
+            </div>
+
+            <!-- Carga de imágenes -->
+            <div class="pm-ctrls pm-ctrls--imgs">
+              <label>
+                <span>Imágenes (múltiples)</span>
+                <input
+                  id="pm-imgs"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  class="p-file"
+                />
+              </label>
+
+              <label>
+                <span>Caption (opcional)</span>
+                <input
+                  id="pm-img-caption"
+                  placeholder="Ej: detalle, ángulo, etc."
+                />
+              </label>
+
+              <label>
+                <span>Orden</span>
+                <input
+                  id="pm-img-sort"
+                  type="number"
+                  value="1"
+                  min="0"
+                  title="Orden"
+                />
+              </label>
+
+              <div class="pm-actions">
+                <button id="pm-upload-imgs" class="btn btn-cta">
+                  Subir imágenes
+                </button>
+              </div>
+            </div>
+
+            <!-- Carga de video -->
+            <div class="pm-ctrls pm-ctrls--video">
+              <label>
+                <span>Video</span>
+                <input
+                  id="pm-video"
+                  type="file"
+                  accept="video/*"
+                  class="p-file"
+                />
+              </label>
+
+              <label>
+                <span>Poster (opcional)</span>
+                <input
+                  id="pm-poster"
+                  type="file"
+                  accept="image/*"
+                  class="p-file"
+                />
+              </label>
+
+              <label>
+                <span>Caption video</span>
+                <input id="pm-vid-caption" placeholder="Breve descripción" />
+              </label>
+
+              <label>
+                <span>Orden</span>
+                <input
+                  id="pm-vid-sort"
+                  type="number"
+                  value="3"
+                  min="0"
+                  title="Orden"
+                />
+              </label>
+
+              <div class="pm-actions">
+                <button id="pm-upload-video" class="btn btn-cta">
+                  Subir video
+                </button>
+              </div>
+            </div>
+
+            <!-- Preview local (antes de subir) -->
+            <div id="pm-previews" class="pm-previews" hidden>
+              <h3>Previsualización (no subido aún)</h3>
+              <div id="pm-preview-list" class="pm-preview-list"></div>
+            </div>
+
+            <!-- Tabla de media -->
+            <table
+              class="pm-table"
+              style="
+                width: 100%;
+                margin-top: 12px;
+                border-collapse: separate;
+                border-spacing: 0;
+              "
+            >
+              <colgroup>
+                <col style="width: 72px" />
+                <col style="width: 88px" />
+                <col />
+                <col style="width: 96px" />
+                <col style="width: 96px" />
+                <col style="width: 220px" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Thumb</th>
+                  <th>Tipo</th>
+                  <th>Caption</th>
+                  <th>Orden</th>
+                  <th>Visible</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="pm-rows"></tbody>
+            </table>
+          </section>
+
           <!-- === STOCK REAL / FOTOS (ADMIN) === -->
           <section id="stock-admin" style="margin-top: 24px">
             <h2>Stock real / Fotos</h2>
@@ -536,6 +687,7 @@
             <!-- Filas -->
             <div id="stock-rows"></div>
           </section>
+          <!--/#stock-admin-->
 
           <p class="muted">
             Categorías válidas: Buzo polar, Pantalones / Bermudas cargo,
@@ -599,14 +751,17 @@
             resolve(val);
           };
 
-          box.querySelector(".btn-confirm").onclick = () => onClose(true);
-          box.querySelector(".btn-cancel").onclick = () => onClose(false);
-          // cerrar con ESC
-          back.onkeydown = (e) => (e.key === "Escape" ? onClose(false) : null);
-          // bloquear click fuera (no cierra)
+          // clicks (delegado): confirma/cancela y NO cierra por click fuera
           back.addEventListener("click", (e) => {
-            if (e.target === back) return; // ignora click fuera
+            if (e.target.closest(".btn-confirm")) return onClose(true);
+            if (e.target.closest(".btn-cancel")) return onClose(false);
+            if (e.target === back) return; // click fuera: no hace nada
           });
+          // cerrar con ESC
+          back.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") onClose(false);
+          });
+
           // foco accesible
           box.querySelector(".btn-cancel").focus();
         });
@@ -1024,6 +1179,180 @@
           showToast("Eliminado");
         }
       });
+      // === MEDIA POR PRODUCTO (usa el mismo 'supa' ya creado) ===
+      const PM_BUCKET = "products";
+
+      const $pmSel = document.getElementById("pm-product");
+      const $pmRows = document.getElementById("pm-rows");
+
+      async function pmLoadProducts() {
+        const { data, error } = await supa
+          .from("products")
+          .select("id,name")
+          .order("id");
+        $pmSel.innerHTML = (data || [])
+          .map((p) => `<option value="${p.id}">${p.id} — ${p.name}</option>`)
+          .join("");
+      }
+
+      function pmSanitize(name) {
+        return name.toLowerCase().replace(/[^\w.-]+/g, "-");
+      }
+      async function pmUploadToBucket(file, pid) {
+        const key = `products/${pid}/${Date.now()}-${pmSanitize(file.name)}`;
+        const up = await supa.storage
+          .from(PM_BUCKET)
+          .upload(key, file, { upsert: true, contentType: file.type });
+        if (up.error) throw up.error;
+        return supa.storage.from(PM_BUCKET).getPublicUrl(up.data.path).data
+          .publicUrl;
+      }
+
+      async function pmList() {
+        const pid = Number($pmSel.value);
+        const { data, error } = await supa
+          .from("product_media")
+          .select("*")
+          .eq("product_id", pid)
+          .order("sort", { ascending: true })
+          .order("created_at", { ascending: true });
+        $pmRows.innerHTML = (data || [])
+          .map(
+            (m) => `
+    <tr data-id="${m.id}">
+      <td>${
+        m.kind === "img"
+          ? `<img src="${m.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">`
+          : '<span class="muted">video</span>'
+      }</td>
+      <td>${m.kind}</td>
+      <td><input class="pm-cap" value="${m.caption || ""}" /></td>
+      <td><input class="pm-sort" type="number" value="${
+        m.sort || 0
+      }" style="width:80px" /></td>
+      <td><input class="pm-vis" type="checkbox" ${
+        m.visible ? "checked" : ""
+      } /></td>
+      <td>
+        <button class="pm-save">Guardar</button>
+        <button class="pm-del" style="background:#6b7280;color:#fff">Borrar</button>
+      </td>
+    </tr>`
+          )
+          .join("");
+      }
+
+      document.getElementById("pm-reload").onclick = pmList;
+      document.getElementById("pm-upload-imgs").onclick = async () => {
+        const pid = Number($pmSel.value);
+        const files = Array.from(
+          document.getElementById("pm-imgs").files || []
+        );
+        if (!pid || !files.length) {
+          await infoDialog("Elegí producto e imágenes", "Falta información");
+          return;
+        }
+
+        const cap =
+          document.getElementById("pm-img-caption").value.trim() || null;
+        const baseSort = Number(
+          document.getElementById("pm-img-sort").value || 0
+        );
+
+        const rows = [];
+        for (let i = 0; i < files.length; i++) {
+          const url = await pmUploadToBucket(files[i], pid);
+          rows.push({
+            product_id: pid,
+            kind: "img",
+            url,
+            poster_url: null,
+            caption: cap,
+            sort: baseSort + i,
+            visible: true,
+          });
+        }
+
+        await supa.from("product_media").insert(rows);
+        document.getElementById("pm-imgs").value = "";
+
+        showToast("Imágenes subidas"); // feedback
+        pmList();
+      };
+
+      document.getElementById("pm-upload-video").onclick = async () => {
+        const pid = Number($pmSel.value);
+        const v = document.getElementById("pm-video").files[0];
+        if (!pid || !v) {
+          await infoDialog(
+            "Elegí producto y un archivo de video",
+            "Falta información"
+          );
+          return;
+        }
+        const p = document.getElementById("pm-poster").files[0] || null;
+        const cap =
+          document.getElementById("pm-vid-caption").value.trim() || null;
+        const sort = Number(document.getElementById("pm-vid-sort").value || 0);
+
+        const vurl = await pmUploadToBucket(v, pid);
+        const purl = p ? await pmUploadToBucket(p, pid) : null;
+
+        await supa.from("product_media").insert([
+          {
+            product_id: pid,
+            kind: "video",
+            url: vurl,
+            poster_url: purl,
+            caption: cap,
+            sort,
+            visible: true,
+          },
+        ]);
+
+        document.getElementById("pm-video").value = "";
+        document.getElementById("pm-poster").value = "";
+
+        showToast("Video subido"); // feedback
+        pmList();
+      };
+
+      $pmRows.addEventListener("click", async (e) => {
+        const tr = e.target.closest("tr[data-id]");
+        if (!tr) return;
+        const id = Number(tr.dataset.id);
+
+        if (e.target.classList.contains("pm-save")) {
+          const caption = tr.querySelector(".pm-cap").value.trim() || null;
+          const sort = Number(tr.querySelector(".pm-sort").value || 0);
+          const visible = tr.querySelector(".pm-vis").checked;
+
+          await supa
+            .from("product_media")
+            .update({ caption, sort, visible })
+            .eq("id", id);
+          showToast("Cambios guardados"); // feedback
+          pmList();
+        }
+
+        if (e.target.classList.contains("pm-del")) {
+          const ok = await confirmDialog(
+            "¿Querés borrar este ítem?",
+            "Borrar ítem"
+          );
+          if (!ok) return;
+          await supa.from("product_media").delete().eq("id", id);
+          showToast("Ítem borrado"); // feedback
+          pmList();
+        }
+      });
+
+      // init del subpanel
+      pmLoadProducts().then(pmList);
+      $pmSel?.addEventListener("change", pmList);
     </script>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
   </body>
 </html>

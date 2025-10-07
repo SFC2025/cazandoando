@@ -13,7 +13,7 @@
   const SUPABASE_URL = "https://vtdwtjxadqtmwwhjjhey.supabase.co";
   const SUPABASE_ANON_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0ZHd0anhhZHF0bXd3aGpqaGV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MTE2MjcsImV4cCI6MjA3NTA4NzYyN30.Hqz6S3MvccPgOwavAnA19cf-1mrtzLE_fd5RAqAs7hk";
-  const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const $year = document.getElementById("year");
   if ($year) $year.textContent = new Date().getFullYear();
@@ -324,6 +324,11 @@
       const card = document.createElement("article");
       card.className = "product-card";
       card.setAttribute("role", "listitem");
+
+      // ⬇️ Necesario para abrir la galería
+      card.dataset.productId = String(p.id);
+      card.dataset.productName = p.name;
+
       card.innerHTML = `
         <div class="product-media">
   <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async"
@@ -331,6 +336,7 @@
        srcset="${p.image} 640w, ${p.image} 960w, ${p.image} 1280w"
        sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw">
 </div>
+
 
         <div class="product-body">
           <div class="product-head">
@@ -522,3 +528,239 @@
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").catch(console.error);
 }
+
+// === Galería por producto ===
+// Requiere: supa (Supabase client ya inicializado)
+
+const $pgOverlay = document.getElementById("product-gallery");
+const $pgGrid = document.getElementById("pg-grid");
+const $pgClose = $pgOverlay?.querySelector(".pg-close");
+
+function openGallery(productId, productName) {
+  if (!$pgOverlay || !$pgGrid) return;
+  $pgOverlay.hidden = false;
+  $pgGrid.innerHTML = "";
+  $pgGrid.setAttribute("aria-busy", "true");
+  document.body.style.overflow = "hidden";
+  const $title = document.getElementById("pg-title");
+  if ($title) $title.textContent = productName || "Galería";
+
+  // Fetch on open
+  window.supa
+    .from("product_media")
+    .select("*")
+    .eq("product_id", productId)
+    .eq("visible", true)
+    .order("sort", { ascending: true })
+    .order("created_at", { ascending: false })
+    .then(({ data, error }) => {
+      if (error) {
+        console.error(error);
+        $pgGrid.innerHTML =
+          "<p style='opacity:.7'>No se pudo cargar la galería.</p>";
+        return;
+      }
+      const list = data || [];
+      if (!list.length) {
+        $pgGrid.innerHTML =
+          "<p style='opacity:.7'>Este producto no tiene galería todavía.</p>";
+        return;
+      }
+      $pgGrid.innerHTML = list
+        .map((m) => {
+          if (m.kind === "video") {
+            const poster = m.poster_url ? ` poster="${m.poster_url}"` : "";
+            return `
+            <div class="pg-item">
+              <video controls preload="metadata"${poster} src="${
+              m.url
+            }"></video>
+              ${m.caption ? `<div class="pg-cap">${m.caption}</div>` : ""}
+            </div>`;
+          }
+          // imagen
+          return `
+          <div class="pg-item">
+            <img loading="lazy" src="${m.url}" alt="${m.caption || "Imagen"}">
+            ${m.caption ? `<div class="pg-cap">${m.caption}</div>` : ""}
+          </div>`;
+        })
+        .join("");
+    })
+    .finally(() => $pgGrid.removeAttribute("aria-busy"));
+}
+
+function closeGallery() {
+  if (!$pgOverlay) return;
+  $pgOverlay.hidden = true;
+  document.body.style.overflow = "";
+  $pgGrid && ($pgGrid.innerHTML = "");
+}
+$pgClose && $pgClose.addEventListener("click", closeGallery);
+$pgOverlay &&
+  $pgOverlay.addEventListener("click", (e) => {
+    if (e.target === $pgOverlay) closeGallery();
+  });
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeGallery();
+});
+
+// === Hook de tarjetas ===
+// 1) Delegado: contenedor donde renderizás las cards de productos.
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-product-id]");
+  if (!btn) return;
+  const id = Number(btn.getAttribute("data-product-id"));
+  const name = btn.getAttribute("data-product-name") || "Producto";
+  if (id) openGallery(id, name);
+});
+
+// Fallback: cerrar al tocar la X aunque algo interfiera
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".pg-close")) {
+    e.preventDefault();
+    closeGallery();
+  }
+});
+
+/* === Preview local: Galería por producto === */
+(() => {
+  const $imgs = document.getElementById("pm-imgs");
+  const $video = document.getElementById("pm-video");
+  const $poster = document.getElementById("pm-poster");
+  const $wrap = document.getElementById("pm-previews");
+  const $list = document.getElementById("pm-preview-list");
+  if (!$imgs || !$wrap || !$list) return;
+
+  const clear = () => {
+    $list.innerHTML = "";
+  };
+  const show = () => {
+    $wrap.hidden = $list.children.length === 0;
+  };
+
+  function addThumb(file) {
+    const url = URL.createObjectURL(file);
+    const item = document.createElement("div");
+    item.className = "pm-thumb-item";
+    item.innerHTML = `<img src="${url}" alt=""><span>${file.name}</span>`;
+    $list.appendChild(item);
+  }
+  function addChip(prefix, text) {
+    const chip = document.createElement("div");
+    chip.className = "pm-chip";
+    chip.textContent = `${prefix} ${text}`;
+    $list.appendChild(chip);
+  }
+
+  $imgs.addEventListener("change", (e) => {
+    clear();
+    const files = Array.from(e.target.files || []);
+    files.forEach(addThumb);
+    show();
+  });
+
+  $video?.addEventListener("change", (e) => {
+    clear();
+    const f = (e.target.files || [])[0];
+    if (f) addChip("🎬", f.name);
+    show();
+  });
+
+  $poster?.addEventListener("change", (e) => {
+    const f = (e.target.files || [])[0];
+    if (f) addThumb(f);
+    show();
+  });
+})();
+
+/* === Dialog + Toast === */
+function dlgShow({
+  title = "Aviso",
+  msg = "",
+  okText = "Aceptar",
+  cancelText = "Cancelar",
+  danger = false,
+}) {
+  return new Promise((resolve) => {
+    const $ov = document.getElementById("dlg");
+    const $t = document.getElementById("dlg-title");
+    const $m = document.getElementById("dlg-msg");
+    const $ok = document.getElementById("dlg-ok");
+    const $cc = document.getElementById("dlg-cancel");
+    $t.textContent = title;
+    $m.textContent = msg;
+    $ok.textContent = okText;
+    $cc.textContent = cancelText;
+    $ok.classList.toggle("btn-danger", !!danger);
+    $ov.hidden = false;
+
+    const close = (val) => {
+      $ov.hidden = true;
+      $ok.onclick = $cc.onclick = null;
+      resolve(val);
+    };
+    $ok.onclick = () => close(true);
+    $cc.onclick = () => close(false);
+    $ov.onclick = (e) => {
+      if (e.target === $ov) close(false);
+    };
+  });
+}
+function toast(msg = "Listo") {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.hidden = false;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => {
+    el.hidden = true;
+  }, 2000);
+}
+
+/* === Preview local: imágenes/video/poster === */
+(() => {
+  const $imgs = document.getElementById("pm-imgs");
+  const $video = document.getElementById("pm-video");
+  const $poster = document.getElementById("pm-poster");
+  const $wrap = document.getElementById("pm-previews");
+  const $list = document.getElementById("pm-preview-list");
+  if (!$imgs || !$wrap || !$list) return;
+
+  const clear = () => {
+    $list.innerHTML = "";
+  };
+  const show = () => {
+    $wrap.hidden = $list.children.length === 0;
+  };
+
+  const addThumb = (file) => {
+    const url = URL.createObjectURL(file);
+    const item = document.createElement("div");
+    item.className = "pm-thumb-item";
+    item.innerHTML = `<img src="${url}" alt=""><span>${file.name}</span>`;
+    $list.appendChild(item);
+  };
+  const addChip = (text) => {
+    const chip = document.createElement("div");
+    chip.className = "pm-chip";
+    chip.textContent = text;
+    $list.appendChild(chip);
+  };
+
+  $imgs.addEventListener("change", (e) => {
+    clear();
+    Array.from(e.target.files || []).forEach(addThumb);
+    show();
+  });
+  $video?.addEventListener("change", (e) => {
+    clear();
+    const f = (e.target.files || [])[0];
+    if (f) addChip(`🎬 ${f.name}`);
+    show();
+  });
+  $poster?.addEventListener("change", (e) => {
+    const f = (e.target.files || [])[0];
+    if (f) addThumb(f);
+    show();
+  });
+})();

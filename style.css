@@ -1206,3 +1206,376 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+/* === Galería por producto (modal) === */
+.pg-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+.pg-sheet {
+  width: min(1600px, 98vw);
+  height: min(92vh, 98vh);
+  background: #0b0b0b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.pg-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0f172a;
+  color: #e5e7eb;
+  cursor: pointer;
+  z-index: 5;
+}
+.pg-title {
+  margin: 16px 16px 0 16px;
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+.pg-grid {
+  padding: 16px;
+  gap: 16px;
+  overflow: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.pg-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0b0b0b;
+  /* más alto en desktop */
+  aspect-ratio: 16 / 10;
+}
+.pg-item img,
+.pg-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pg-cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  color: #e5e7eb;
+}
+
+@media (max-width: 600px) {
+  .pg-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pg-item {
+    aspect-ratio: 1 / 1;
+  } /* cuadradas en celus */
+}
+
+/* FIX: respetar el atributo [hidden] del modal */
+.pg-overlay[hidden] {
+  display: none !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+/* === Admin: Galería por producto (layout tabla) === */
+.pm-table thead th {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pm-table tbody td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.pm-table td:nth-child(1) {
+  text-align: center;
+}
+.pm-table img.pm-thumb,
+.pm-table video.pm-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pm-table input[type="number"] {
+  width: 90px;
+}
+.pm-table .actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pm-table .switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#pm-admin input[type="text"],
+#pm-admin input[type="number"],
+#pm-admin input[placeholder],
+#pm-admin select {
+  height: 36px;
+}
+
+/* === Preview local de archivos === */
+.pm-previews {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.pm-previews h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+.pm-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pm-thumb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #0b0b0b;
+}
+.pm-thumb-item img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+.pm-chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #0f172a;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+/* === Dialog genérico === */
+.dlg-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+}
+.dlg-card {
+  width: min(520px, 92vw);
+  background: #0b0b0b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.dlg-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+}
+.dlg-card p {
+  margin: 0 0 12px 0;
+  opacity: 0.9;
+}
+.dlg-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* === Toast === */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #0b0b0b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 10px 14px;
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  z-index: 10000;
+}
+.toast[hidden] {
+  display: none;
+}
+
+/* === Admin: filas de controles con anchos iguales (REEMPLAZO) === */
+.pm-ctrls {
+  display: grid;
+  column-gap: 16px;
+  row-gap: 8px;
+  align-items: end;
+  margin: 0;
+}
+
+.pm-ctrls + .pm-ctrls {
+  margin-top: 28px;
+} /* más aire entre “Imágenes” y “Video” */
+
+.pm-ctrls label {
+  /* estilo los <label> contenedores (título + control) */
+  display: grid; /* los convierto en mini-grids */
+  grid-template-rows: auto 36px; /* primera fila para el <span> (auto), segunda de 36px para el control */
+  gap: 6px; /* separación entre el título y el control */
+}
+.pm-ctrls label > span {
+  /* el texto del título dentro del label */
+  font-size: 0.9rem; /* lo hago un toque más chico */
+  opacity: 0.8; /* y un pelín más tenue */
+}
+
+/* inputs y selects con alto y ancho consistentes */
+.pm-ctrls input[type="text"],                    /* el caption de imágenes o video */
+.pm-ctrls input[type="number"],                  /* el campo de “Orden” */
+.pm-ctrls select {
+  /* el selector de producto */
+  height: 36px; /* todos a la misma altura */
+  width: 100%; /* que ocupen todo el ancho de su columna */
+}
+
+#pm-admin .pm-ctrls .btn {
+  height: 36px;
+  min-width: 140px;
+  margin-block: 4px;
+}
+
+/* <input type="file"> estilizado para que quede parejo */
+.p-file {
+  /* el input file nativo */
+  height: 36px; /* lo hago encajar con la línea */
+  width: 100%; /* que ocupe su columna completa */
+  border: 1px solid rgba(255, 255, 255, 0.12); /* borde sutil para que se vea el campo */
+  border-radius: 8px; /* esquinas redondeadas como el resto de la UI */
+  background: #0b0b0b; /* fondo oscuro coherente con el admin */
+}
+.p-file::file-selector-button {
+  /* el botón “Elegir archivo” del input file */
+  height: 36px; /* misma altura que el campo */
+  padding: 0 12px; /* padding lateral cómodo */
+  margin-right: 8px; /* separación respecto al nombre del archivo */
+  border: 0; /* sin borde nativo */
+  border-radius: 8px; /* mismo radio que otros botones */
+  background: #f97316; /* color CTA (naranja) */
+  color: #111; /* texto oscuro para buen contraste */
+  cursor: pointer; /* que se note clickeable */
+}
+.p-file:focus {
+  /* cuando el input file toma foco */
+  outline: 2px solid rgba(249, 115, 22, 0.5); /* halo naranja suave */
+  outline-offset: 0; /* sin separación del borde */
+}
+/* PM: compactar file inputs (solo dentro de la galería) */
+#pm-admin .pm-ctrls .p-file {
+  width: 160px; /* solo el botón */
+  font-size: 0; /* oculta el texto del nombre */
+  border: 0;
+  background: transparent;
+  padding: 0;
+  overflow: hidden;
+  display: inline-block;
+}
+#pm-admin .pm-ctrls .p-file::file-selector-button {
+  width: 150px; /* opcional */
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #f97316;
+  color: #111;
+  cursor: pointer;
+}
+
+.pm-ctrls--product {
+  grid-template-columns: 1fr 140px;
+}
+
+/* file | caption | orden | botón */
+.pm-ctrls--imgs {
+  grid-template-columns: 180px 1fr 110px 160px;
+}
+
+/* video | poster | caption | orden | botón */
+.pm-ctrls--video {
+  grid-template-columns: 180px 180px 1fr 110px 160px;
+}
+
+/* Responsive: pila en móvil/tablet */
+@media (max-width: 720px) {
+  .pm-ctrls--product,
+  .pm-ctrls--imgs,
+  .pm-ctrls--video {
+    grid-template-columns: 1fr;
+  }
+}
+/* contenedor del botón a la derecha, alineado abajo */
+
+.pm-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center; /* centra el botón en la fila */
+  gap: 10px;
+}
+
+/* === Modal para confirmDialog / infoDialog (bloquea fondo y permite click interno) === */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: grid;
+  place-items: center;
+  z-index: 10050; /* por encima de .pg-overlay/.dlg-overlay y .toast */
+}
+
+.modal {
+  background: #0b0b0b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  width: min(520px, 92vw);
+  pointer-events: auto; /* asegura que los botones reciban el click */
+}
+
+.modal .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal button {
+  pointer-events: auto;
+}
