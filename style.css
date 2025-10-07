@@ -1251,37 +1251,39 @@ textarea:focus {
 .pg-grid {
   padding: 16px;
   gap: 16px;
-  overflow: auto;
+  overflow-y: auto; /* scroll vertical cuando hay muchas */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(420px, 1fr)
+  ); /* columnas más sólidas en desktop */
 }
 
 .pg-item {
   position: relative;
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible; /* no recorta contenido */
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: #0b0b0b;
-  /* más alto en desktop */
-  aspect-ratio: 16 / 10;
+  aspect-ratio: auto; /* altura natural según la imagen (evita saltos con muchas fotos) */
+  height: auto;
 }
 .pg-item img,
 .pg-item video {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto; /* deja crecer verticalmente */
+  object-fit: contain; /* muestra la imagen completa en desktop también */
   display: block;
+  background: #000; /* bandas negras si sobra espacio */
 }
 .pg-cap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
+  position: static; /* caption debajo para evitar solapamientos */
+  padding: 6px 8px 0;
+  font-size: 0.9rem;
+  background: transparent;
   color: #e5e7eb;
 }
+
 @media (max-width: 600px) {
   /* 1 sola columna en celular */
   .pg-grid {
@@ -1367,7 +1369,9 @@ textarea:focus {
 #pm-admin input[type="number"],
 #pm-admin input[placeholder],
 #pm-admin select {
-  height: 36px;
+  height: 40px; /* más alto */
+  line-height: 40px; /* centra y evita recorte de letras */
+  padding: 0 12px; /* cómodo en desktop y mobile */
 }
 
 /* === Preview local de archivos === */
@@ -1475,11 +1479,11 @@ textarea:focus {
 } /* más aire entre “Imágenes” y “Video” */
 
 .pm-ctrls label {
-  /* estilo los <label> contenedores (título + control) */
-  display: grid; /* los convierto en mini-grids */
-  grid-template-rows: auto 36px; /* primera fila para el <span> (auto), segunda de 36px para el control */
-  gap: 6px; /* separación entre el título y el control */
+  display: grid;
+  grid-template-rows: auto 40px; /* +alto: evita cortar descendentes (p,q,g) */
+  gap: 6px;
 }
+
 .pm-ctrls label > span {
   /* el texto del título dentro del label */
   font-size: 0.9rem; /* lo hago un toque más chico */
