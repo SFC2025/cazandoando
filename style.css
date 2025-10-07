@@ -33,7 +33,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
 img {
@@ -1282,14 +1282,41 @@ textarea:focus {
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.55));
   color: #e5e7eb;
 }
-
 @media (max-width: 600px) {
+  /* 1 sola columna en celular */
   .pg-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
+    overflow-y: auto; /* scroll vertical dentro de la hoja */
+    padding: 12px; /* un poco menos de padding */
+    gap: 12px;
   }
+
+  /* cada item ocupa todo el ancho y deja crecer su contenido */
   .pg-item {
-    aspect-ratio: 1 / 1;
-  } /* cuadradas en celus */
+    aspect-ratio: auto;
+    height: auto;
+    overflow: visible; /* no recorta nada */
+    border-radius: 12px;
+  }
+
+  /* imagen/video a tamaño completo del ancho, alto natural */
+  .pg-item img,
+  .pg-item video {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain; /* SIN recorte */
+    background: #000; /* relleno si hay bandas */
+  }
+
+  /* el caption pasa a estar DEBAJO, no superpuesto */
+  .pg-cap {
+    position: static;
+    background: transparent;
+    padding: 6px 2px 0;
+    font-size: 0.9rem;
+    color: #e5e7eb;
+  }
 }
 
 /* FIX: respetar el atributo [hidden] del modal */
