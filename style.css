@@ -1277,11 +1277,18 @@ textarea:focus {
   background: #000; /* bandas negras si sobra espacio */
 }
 .pg-cap {
-  position: static; /* caption debajo para evitar solapamientos */
-  padding: 6px 8px 0;
-  font-size: 0.9rem;
-  background: transparent;
+  position: static;
+  display: inline-block;
+  margin: 8px 2px 0;
+  padding: 6px 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.25;
   color: #e5e7eb;
+  background: #0f172a; /* badge oscuro */
+  border: 1px solid rgba(255, 255, 255, 0.12); /* borde sutil */
+  border-radius: 10px; /* pill */
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35); /* flotado suave */
 }
 
 @media (max-width: 600px) {
@@ -1311,13 +1318,20 @@ textarea:focus {
     background: #000; /* relleno si hay bandas */
   }
 
-  /* el caption pasa a estar DEBAJO, no superpuesto */
+  /* caption en móvil como chip elegante */
   .pg-cap {
     position: static;
-    background: transparent;
-    padding: 6px 2px 0;
-    font-size: 0.9rem;
+    display: inline-block;
+    margin: 6px 2px 0;
+    padding: 6px 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.25;
     color: #e5e7eb;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   }
 }
 
