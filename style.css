@@ -1262,7 +1262,6 @@ textarea:focus {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: #0b0b0b;
-  /* más alto en desktop */
   aspect-ratio: 16 / 10;
 }
 .pg-item img,
@@ -1283,13 +1282,14 @@ textarea:focus {
   color: #e5e7eb;
 }
 
+/* ⬇️ CAMBIO: en móvil, UNA sola columna y ratio más alto */
 @media (max-width: 600px) {
   .pg-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
   }
   .pg-item {
-    aspect-ratio: 1 / 1;
-  } /* cuadradas en celus */
+    aspect-ratio: 4 / 3;
+  }
 }
 
 /* FIX: respetar el atributo [hidden] del modal */
@@ -1298,6 +1298,7 @@ textarea:focus {
   pointer-events: none !important;
   opacity: 0 !important;
 }
+
 /* === Admin: Galería por producto (layout tabla) === */
 .pm-table thead th {
   text-align: left;
