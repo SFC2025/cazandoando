@@ -330,7 +330,7 @@
       card.dataset.productName = p.name;
 
       card.innerHTML = `
-        <div class="product-media">
+       <div class="product-media" data-open-gallery>
   <img src="${p.image}" alt="${p.name}" loading="lazy" decoding="async"
        width="640" height="480"
        srcset="${p.image} 640w, ${p.image} 960w, ${p.image} 1280w"
@@ -364,8 +364,10 @@
       `;
       const buyBtn = card.querySelector(".buy-btn");
       const qtyInput = card.querySelector(".qty");
-      // Comprar: NO toca el stock local; solo abre WhatsApp con el mensaje
-      buyBtn?.addEventListener("click", () => {
+      // Comprar: DESCUENTA stock vía Supabase RPC y luego abre WhatsApp
+      buyBtn?.addEventListener("click", async (ev) => {
+        ev.stopPropagation();
+
         const qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
         const stockNow = getCurrentStock(p);
         if (qty > stockNow) {
@@ -373,24 +375,60 @@
           return;
         }
 
-        const msg =
-          `Hola! Vengo de la web CazandoAndo.\n` +
-          `Quiero comprar ${qty} × ${p.name} (ID ${p.id}).\n` +
-          `Precio $${p.price.toLocaleString("es-AR")} c/u.\n` +
-          `¿Seguimos?`;
-        const waURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-          msg
-        )}`;
+        buyBtn.disabled = true;
+        qtyInput.disabled = true;
 
-        if (window.gtag) {
-          gtag("event", "whatsapp_click", {
-            event_category: "engagement",
-            event_label: p.name,
-            value: qty,
+        try {
+          const { data, error } = await window.supa.rpc("dec_stock", {
+            p_id: p.id,
+            p_qty: qty,
           });
-        }
+          console.log("dec_stock →", { data, error }); // ← AQUÍ, después del await
 
-        window.open(waURL, "_blank", "noopener");
+          if (error) {
+            alert(error.message || "No se pudo reservar stock.");
+            return;
+          }
+
+          const newStock = (data && data[0] && data[0].stock) ?? stockNow - qty;
+          p.stock = newStock;
+
+          const $stock = card.querySelector(".stock-count");
+          if ($stock) $stock.textContent = `Stock: ${Math.max(0, newStock)}`;
+
+          const $badge = card.querySelector(".badge");
+          if (newStock <= 0 && $badge) {
+            $badge.classList.remove("ok");
+            $badge.classList.add("out");
+            $badge.textContent = "Agotado";
+            qtyInput.value = 1;
+            qtyInput.disabled = true;
+            buyBtn.disabled = true;
+          }
+
+          const msg =
+            `Hola! Vengo de la web CazandoAndo.\n` +
+            `Quiero comprar ${qty} × ${p.name} (ID ${p.id}).\n` +
+            `Precio $${p.price.toLocaleString("es-AR")} c/u.\n` +
+            `¿Seguimos?`;
+          const waURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+            msg
+          )}`;
+
+          if (window.gtag) {
+            gtag("event", "whatsapp_click", {
+              event_category: "engagement",
+              event_label: p.name,
+              value: qty,
+            });
+          }
+          window.open(waURL, "_blank", "noopener");
+        } finally {
+          if ((p.stock ?? stockNow) > 0) {
+            buyBtn.disabled = false;
+            qtyInput.disabled = false;
+          }
+        }
       });
 
       card.dataset.category = p.category;
@@ -415,7 +453,7 @@
       '<div class="stock-item skeleton" style="height:280px;border-radius:14px"></div>'.repeat(
         8
       );
-    const { data, error } = await supa
+    const { data, error } = await window.supa
       .from("stock_images")
       .select("*")
       .eq("visible", true)
@@ -608,10 +646,12 @@ window.addEventListener("keydown", (e) => {
 // === Hook de tarjetas ===
 // 1) Delegado: contenedor donde renderizás las cards de productos.
 document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-product-id]");
-  if (!btn) return;
-  const id = Number(btn.getAttribute("data-product-id"));
-  const name = btn.getAttribute("data-product-name") || "Producto";
+  const trigger = e.target.closest("[data-open-gallery]");
+  if (!trigger) return;
+  const card = trigger.closest("[data-product-id]");
+  if (!card) return;
+  const id = Number(card.getAttribute("data-product-id"));
+  const name = card.getAttribute("data-product-name") || "Producto";
   if (id) openGallery(id, name);
 });
 
