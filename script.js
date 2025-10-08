@@ -167,12 +167,28 @@
       Mate: ["*", "Yerberas", "Termos", "Vasos térmicos"],
     };
 
+    // Persistencia simple (opcional)
+    const LS_KEY = "ca_filters_v1";
+    const save = (section, sub) => {
+      try {
+        localStorage.setItem(LS_KEY, JSON.stringify({ section, sub }));
+      } catch {}
+    };
+    const load = () => {
+      try {
+        const v = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+        return { section: v.section ?? "*", sub: v.sub ?? "*" };
+      } catch {
+        return { section: "*", sub: "*" };
+      }
+    };
+
     const $sections = document.getElementById("filters");
     const $sub = document.getElementById("subfilters");
     if (!$sections) return;
 
-    let SELECTED_SECTION = "*";
-    let SELECTED_SUBCAT = "*";
+    // Estado inicial (si no hay nada guardado, arranca en "Todos")
+    let { section: SELECTED_SECTION, sub: SELECTED_SUBCAT } = load();
 
     // Botones de SECCIÓN (orden fijo)
     const order = ["*", "Indumentarias", "Artículos de caza", "Mate"];
@@ -180,31 +196,38 @@
     $sections.innerHTML = order
       .map((s) => {
         const label = s === "*" ? "Todos" : s;
-        const isActive = s === "*";
-        return `<button class="filter-btn ${
-          isActive ? "is-active" : ""
-        }" data-section="${s}" role="tab" aria-selected="${isActive}">${label}</button>`;
+        const isActive = s === SELECTED_SECTION;
+        return `<button class="filter-btn ${isActive ? "is-active" : ""}"
+        data-section="${s}"
+        role="tab"
+        aria-selected="${isActive}">${label}</button>`;
       })
       .join("");
 
     function setSubfilters(section) {
       const list = SUBCATS[section] || [];
-      if (!list.length || section === "*") {
+      const has = list.length > 0 && section !== "*";
+
+      if (!has) {
         $sub.style.display = "none";
         $sub.innerHTML = "";
+        // si la sección es "Todos", forzamos sub="*"
         SELECTED_SUBCAT = "*";
         return;
       }
+
       $sub.style.display = "flex";
+      // si el sub guardado no existe en esta sección, caer a "*"
+      if (!list.includes(SELECTED_SUBCAT)) SELECTED_SUBCAT = "*";
+
       $sub.innerHTML = list
-        .map(
-          (sc, i) =>
-            `<button class="filter-btn ${
-              i === 0 ? "is-active" : ""
-            }" data-sub="${sc}" role="tab" aria-selected="${i === 0}">${
-              sc === "*" ? "Todas" : sc
-            }</button>`
-        )
+        .map((sc) => {
+          const active = SELECTED_SUBCAT === sc;
+          return `<button class="filter-btn ${active ? "is-active" : ""}"
+          data-sub="${sc}" role="tab" aria-selected="${active}">
+          ${sc === "*" ? "Todas" : sc}
+        </button>`;
+        })
         .join("");
     }
 
@@ -220,7 +243,7 @@
         card.style.display = show ? "" : "none";
         if (show) visible++;
       });
-      // Mensaje vacío
+
       const grid = document.getElementById("products-grid");
       grid?.querySelectorAll(".empty-state")?.forEach((n) => n.remove());
       if (grid && !visible) {
@@ -233,11 +256,13 @@
       }
     }
 
-    // Listeners sección
+    // Click en SECCIÓN
     $sections.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-section]");
       if (!b) return;
+
       SELECTED_SECTION = b.dataset.section;
+      // al cambiar de sección, reseteo sub a "*" y lo recalculo
       SELECTED_SUBCAT = "*";
 
       // activar visualmente
@@ -250,16 +275,18 @@
 
       setSubfilters(SELECTED_SECTION);
       applyFilters();
+      save(SELECTED_SECTION, SELECTED_SUBCAT);
 
       document
         .getElementById("indumentaria")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
-    // Listeners subcategoría
+    // Click en SUBCATEGORÍA
     $sub?.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-sub]");
       if (!b) return;
+
       SELECTED_SUBCAT = b.dataset.sub;
 
       $sub.querySelectorAll(".filter-btn").forEach((x) => {
@@ -270,13 +297,13 @@
       b.setAttribute("aria-selected", "true");
 
       applyFilters();
+      save(SELECTED_SECTION, SELECTED_SUBCAT);
     });
 
-    // 1ª carga: sin subfiltros
-    setSubfilters("*");
+    // 1ª carga: armar subfiltros y aplicar con el estado inicial
+    setSubfilters(SELECTED_SECTION);
     applyFilters();
 
-    // === Al renderizar productos, vamos a setear data-section/sub según su categoría ===
     // Guardamos el mapeo para reuso en renderProducts:
     window.__CA_SECTION_BY_CATEGORY__ = SECTION_BY_CATEGORY;
   }
