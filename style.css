@@ -1624,3 +1624,122 @@ textarea:focus {
 .modal button {
   pointer-events: auto;
 }
+
+/* === Filtros (tabs + chevron) === */
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0 14px;
+}
+.filters .filter-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #0b0b0b;
+  color: #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  line-height: 1.25; /* evita el “corte” del outline/foco */
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
+}
+
+.filters .filter-btn:hover {
+  transform: translateY(-1px);
+}
+/* Selección general (fila superior) */
+.filters .filter-btn.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* Activo + foco/click: no agregues nada extra */
+#subfilters .filter-btn.is-active:focus,
+#subfilters .filter-btn.is-active:focus-visible,
+#subfilters .filter-btn.is-active:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Chevron para botones con subcategorías */
+.filters .filter-btn[data-has-sub="true"] {
+  position: relative;
+  padding-right: 26px; /* espacio para el chevron */
+}
+.filters .filter-btn[data-has-sub="true"]::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-60%) rotate(45deg); /* apuntando a la derecha/abajo */
+  transition: transform 0.2s ease;
+  opacity: 0.9;
+}
+.filters .filter-btn[aria-expanded="true"]::after {
+  transform: translateY(-35%) rotate(225deg); /* flecha hacia arriba */
+}
+#subfilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  /* estado cerrado */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.2s ease;
+
+  /* ubicación justa debajo de la fila superior */
+  margin: 10px 0 12px;
+  padding: 0;
+  box-sizing: border-box;
+
+  /* sin overlay ni “barra” flotante */
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none !important;
+  position: static;
+  z-index: auto;
+}
+
+#subfilters[data-open="true"] {
+  max-height: 200px; /* aire */
+  opacity: 1;
+  overflow: visible;
+}
+.filters .filter-btn:focus,
+.filters .filter-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important; /* quito esquinas externas */
+}
+/* Subfiltros en foco: sin aro extra (evita el doble contorno con el border del activo) */
+#subfilters .filter-btn:focus,
+#subfilters .filter-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Fijo también el estado :active para clicks (evito esquinas al presionar) */
+.filters .filter-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.filters .filter-btn {
+  line-height: 1.25;
+  vertical-align: middle;
+}
+
+/* Subfiltros: NUNCA dibujar aro por foco; solo el border del activo */
+#subfilters .filter-btn,
+#subfilters .filter-btn:focus,
+#subfilters .filter-btn:focus-visible,
+#subfilters .filter-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}

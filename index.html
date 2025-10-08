@@ -12,7 +12,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    
+    <link rel="manifest" href="./manifest.webmanifest?v=6" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
       rel="preconnect"
@@ -26,7 +26,6 @@
     />
     <meta name="theme-color" content="#0b0b0b" />
     <meta name="color-scheme" content="dark" />
-    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- TODO[SEO]: Descomentar y poner el dominio final cuando publique -->
     <!-- <link rel="canonical" href="https://tu-dominio.com/" /> -->
     <!-- Preload del LCP (hero) con prioridad y variantes -->
@@ -768,13 +767,7 @@
         links.forEach((a) => a.addEventListener("click", openLightbox));
       })();
     </script>
-    <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("/cazandoando/sw.js")
-          .catch(console.error);
-      }
-    </script>
+
     <!-- === Modal Galería por producto === -->
     <div id="product-gallery" class="pg-overlay" hidden>
       <div
@@ -795,5 +788,10 @@
         ></div>
       </div>
     </div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js", { scope: "./" });
+      }
+    </script>
   </body>
 </html>

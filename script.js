@@ -197,17 +197,22 @@
       .map((s) => {
         const label = s === "*" ? "Todos" : s;
         const isActive = s === SELECTED_SECTION;
+        const hasSub = !!SUBCATS[s]?.length && s !== "*";
         return `<button class="filter-btn ${isActive ? "is-active" : ""}"
         data-section="${s}"
+        data-has-sub="${hasSub ? "true" : "false"}"
         role="tab"
-        aria-selected="${isActive}">${label}</button>`;
+        aria-selected="${isActive}"
+        aria-expanded="${
+          isActive && hasSub ? "true" : "false"
+        }">${label}</button>`;
       })
       .join("");
 
     function setSubfilters(section) {
       const list = SUBCATS[section] || [];
       const has = list.length > 0 && section !== "*";
-
+      $sub.dataset.open = has ? "true" : "false";
       if (!has) {
         $sub.style.display = "none";
         $sub.innerHTML = "";
@@ -257,30 +262,40 @@
     }
 
     // Click en SECCIÓN
-    $sections.addEventListener("click", (e) => {
-      const b = e.target.closest("button[data-section]");
-      if (!b) return;
+$sections.addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-section]");
+  if (!b) return;
 
-      SELECTED_SECTION = b.dataset.section;
-      // al cambiar de sección, reseteo sub a "*" y lo recalculo
-      SELECTED_SUBCAT = "*";
+  // 1) Estado
+  SELECTED_SECTION = b.dataset.section;
+  SELECTED_SUBCAT = "*"; // reset sub al cambiar de sección
 
-      // activar visualmente
-      $sections.querySelectorAll(".filter-btn").forEach((x) => {
-        x.classList.remove("is-active");
-        x.setAttribute("aria-selected", "false");
-      });
-      b.classList.add("is-active");
-      b.setAttribute("aria-selected", "true");
+  // 2) Visual: activar botón
+  $sections.querySelectorAll(".filter-btn").forEach((x) => {
+    x.classList.remove("is-active");
+    x.setAttribute("aria-selected", "false");
+  });
+  b.classList.add("is-active");
+  b.setAttribute("aria-selected", "true");
 
-      setSubfilters(SELECTED_SECTION);
-      applyFilters();
-      save(SELECTED_SECTION, SELECTED_SUBCAT);
+  // 3) Subfiltros + filtros
+  setSubfilters(SELECTED_SECTION);
+  applyFilters();
+  save(SELECTED_SECTION, SELECTED_SUBCAT);
 
-      document
-        .getElementById("indumentaria")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+  // 4) Accesibilidad: aria-expanded según tenga subcats y si está activo
+  $sections.querySelectorAll(".filter-btn").forEach((x) => {
+    const hasSub = x.getAttribute("data-has-sub") === "true";
+    const isActive = x.classList.contains("is-active");
+    x.setAttribute("aria-expanded", hasSub && isActive ? "true" : "false");
+  });
+
+  // 5) (Opcional) scroll a la sección
+  document
+    .getElementById("indumentaria")
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
 
     // Click en SUBCATEGORÍA
     $sub?.addEventListener("click", (e) => {

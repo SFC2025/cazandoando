@@ -1,17 +1,17 @@
-const STATIC_CACHE = "ca-static-v3";
-const IMG_CACHE = "ca-img-v3";
+const STATIC_CACHE = "ca-static-v4";
+const IMG_CACHE = "ca-img-v4";
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(STATIC_CACHE).then((c) =>
       c.addAll([
-        "/cazandoando/",
-        "/cazandoando/style.min.css",
-        "/cazandoando/script.js",
-        "/cazandoando/data/products.json",
-        "/cazandoando/assets/CazandoAndo.webp", // solo para OG si hace falta
-        "/cazandoando/assets/logo.webp",
-        "/cazandoando/assets/camuflado.webp",
+        "./",
+        "./index.html",
+        "./style.css",
+        "./script.js",
+        "./data/products.json",
+        // agrega acá SOLO archivos que existan realmente
+        // './assets/logo.webp',
       ])
     )
   );
@@ -20,9 +20,15 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter(k => ![STATIC_CACHE, IMG_CACHE].includes(k)).map(k => caches.delete(k)))
-    )
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((k) => ![STATIC_CACHE, IMG_CACHE].includes(k))
+            .map((k) => caches.delete(k))
+        )
+      )
   );
   self.clients.claim();
 });
@@ -57,6 +63,5 @@ self.addEventListener("fetch", (e) => {
         return cached || fetchPromise;
       })
     );
-    return;
   }
 });
