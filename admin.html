@@ -1223,7 +1223,9 @@
       <td>${
         m.kind === "img"
           ? `<img src="${m.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">`
-          : '<span class="muted">video</span>'
+          : m.poster_url
+          ? `<img src="${m.poster_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">`
+          : `<video src="${m.url}" muted playsinline style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)"></video>`
       }</td>
       <td>${m.kind}</td>
       <td><input class="pm-cap" value="${m.caption || ""}" /></td>
@@ -1244,77 +1246,93 @@
 
       document.getElementById("pm-reload").onclick = pmList;
       document.getElementById("pm-upload-imgs").onclick = async () => {
-        const pid = Number($pmSel.value);
-        const files = Array.from(
-          document.getElementById("pm-imgs").files || []
-        );
-        if (!pid || !files.length) {
-          await infoDialog("Elegí producto e imágenes", "Falta información");
-          return;
+        const btn = document.getElementById("pm-upload-imgs");
+        const old = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Subiendo…";
+        try {
+          const pid = Number($pmSel.value);
+          const files = Array.from(
+            document.getElementById("pm-imgs").files || []
+          );
+          if (!pid || !files.length) {
+            await infoDialog("Elegí producto e imágenes", "Falta información");
+            return;
+          }
+          const cap =
+            document.getElementById("pm-img-caption").value.trim() || null;
+          const baseSort = Number(
+            document.getElementById("pm-img-sort").value || 0
+          );
+
+          const rows = [];
+          for (let i = 0; i < files.length; i++) {
+            const url = await pmUploadToBucket(files[i], pid);
+            rows.push({
+              product_id: pid,
+              kind: "img",
+              url,
+              poster_url: null,
+              caption: cap,
+              sort: baseSort + i,
+              visible: true,
+            });
+          }
+          await supa.from("product_media").insert(rows);
+          document.getElementById("pm-imgs").value = "";
+          showToast("Imágenes subidas");
+          pmList();
+        } finally {
+          btn.disabled = false;
+          btn.textContent = old;
         }
-
-        const cap =
-          document.getElementById("pm-img-caption").value.trim() || null;
-        const baseSort = Number(
-          document.getElementById("pm-img-sort").value || 0
-        );
-
-        const rows = [];
-        for (let i = 0; i < files.length; i++) {
-          const url = await pmUploadToBucket(files[i], pid);
-          rows.push({
-            product_id: pid,
-            kind: "img",
-            url,
-            poster_url: null,
-            caption: cap,
-            sort: baseSort + i,
-            visible: true,
-          });
-        }
-
-        await supa.from("product_media").insert(rows);
-        document.getElementById("pm-imgs").value = "";
-
-        showToast("Imágenes subidas"); // feedback
-        pmList();
       };
 
       document.getElementById("pm-upload-video").onclick = async () => {
-        const pid = Number($pmSel.value);
-        const v = document.getElementById("pm-video").files[0];
-        if (!pid || !v) {
-          await infoDialog(
-            "Elegí producto y un archivo de video",
-            "Falta información"
+        const btn = document.getElementById("pm-upload-video");
+        const old = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "Subiendo…";
+        try {
+          const pid = Number($pmSel.value);
+          const v = document.getElementById("pm-video").files[0];
+          if (!pid || !v) {
+            await infoDialog(
+              "Elegí producto y un archivo de video",
+              "Falta información"
+            );
+            return;
+          }
+          const p = document.getElementById("pm-poster").files[0] || null;
+          const cap =
+            document.getElementById("pm-vid-caption").value.trim() || null;
+          const sort = Number(
+            document.getElementById("pm-vid-sort").value || 0
           );
-          return;
+
+          const vurl = await pmUploadToBucket(v, pid);
+          const purl = p ? await pmUploadToBucket(p, pid) : null;
+
+          await supa.from("product_media").insert([
+            {
+              product_id: pid,
+              kind: "video",
+              url: vurl,
+              poster_url: purl,
+              caption: cap,
+              sort,
+              visible: true,
+            },
+          ]);
+
+          document.getElementById("pm-video").value = "";
+          document.getElementById("pm-poster").value = "";
+          showToast("Video subido");
+          pmList();
+        } finally {
+          btn.disabled = false;
+          btn.textContent = old;
         }
-        const p = document.getElementById("pm-poster").files[0] || null;
-        const cap =
-          document.getElementById("pm-vid-caption").value.trim() || null;
-        const sort = Number(document.getElementById("pm-vid-sort").value || 0);
-
-        const vurl = await pmUploadToBucket(v, pid);
-        const purl = p ? await pmUploadToBucket(p, pid) : null;
-
-        await supa.from("product_media").insert([
-          {
-            product_id: pid,
-            kind: "video",
-            url: vurl,
-            poster_url: purl,
-            caption: cap,
-            sort,
-            visible: true,
-          },
-        ]);
-
-        document.getElementById("pm-video").value = "";
-        document.getElementById("pm-poster").value = "";
-
-        showToast("Video subido"); // feedback
-        pmList();
       };
 
       $pmRows.addEventListener("click", async (e) => {
