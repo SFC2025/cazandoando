@@ -485,6 +485,27 @@
         pointer-events: none !important;
         opacity: 0 !important;
       }
+      /* Celda thumb centrada y uniforme */
+      .pm-table td:first-child {
+        text-align: center;
+      }
+      .pm-thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        overflow: hidden;
+        display: grid;
+        place-items: center; /* centra el contenido */
+        margin: 0 auto; /* centra el contenedor en la celda */
+      }
+      .pm-thumb img,
+      .pm-thumb video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1220,13 +1241,18 @@
           .map(
             (m) => `
     <tr data-id="${m.id}">
-      <td>${
-        m.kind === "img"
-          ? `<img src="${m.url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">`
-          : m.poster_url
-          ? `<img src="${m.poster_url}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">`
-          : `<video src="${m.url}" muted playsinline style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)"></video>`
-      }</td>
+      <td>
+  <div class="pm-thumb">
+    ${
+      m.kind === "img"
+        ? `<img src="${m.url}">`
+        : m.poster_url
+        ? `<img src="${m.poster_url}">`
+        : `<video src="${m.url}" muted playsinline></video>`
+    }
+  </div>
+</td>
+
       <td>${m.kind}</td>
       <td><input class="pm-cap" value="${m.caption || ""}" /></td>
       <td><input class="pm-sort" type="number" value="${
