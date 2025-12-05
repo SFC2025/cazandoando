@@ -228,15 +228,24 @@
 
       /* Responsive */
       @media (max-width: 1200px) {
+        /* pantallas medianas: ajusto anchos pero mantengo tabla horizontal */
         th:nth-child(3),
         td:nth-child(3) {
-          width: 280px;
+          width: 240px;
         } /* Título */
         th:nth-child(6),
         td:nth-child(6) {
-          width: 240px;
+          width: 220px;
         } /* Foto   */
+
+        .prod-head {
+          grid-template-columns: 80px 140px 260px 100px 90px max-content 140px;
+        }
+        .stock-head {
+          grid-template-columns: 260px 90px 80px max-content 140px;
+        }
       }
+
       /* Acciones: mismos anchos/altos y foco */
       td:nth-child(7) .right {
         gap: 8px;
@@ -267,6 +276,118 @@
         outline: 0;
         box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
       }
+
+      /* Vista móvil (iPhone 15, etc.) – todo en columna, sin scroll horizontal */
+      @media (max-width: 640px) {
+        body {
+          font-size: 14px;
+        }
+
+        .wrap {
+          width: 100%;
+          margin: 8px auto;
+        }
+
+        .card {
+          padding: 12px;
+        }
+
+        input,
+        select,
+        button {
+          font-size: 14px;
+          height: 36px;
+        }
+
+        button,
+        .btn-upload,
+        .btn-del-photo,
+        .modal .btn {
+          height: 36px;
+          padding: 6px 10px;
+        }
+
+        /* el contenedor principal ya no scrollea en X */
+        #app {
+          overflow-x: visible;
+        }
+
+        /* Encabezados de listas: ocultos para dejar más espacio */
+        .grid-head {
+          display: none;
+          min-width: 0;
+        }
+
+        /* listas de productos y stock: sin min-width fija */
+        #prod-rows,
+        #stock-rows {
+          min-width: 0;
+        }
+
+        /* Productos: layout compacto – 2 columnas para Precio/Stock */
+        #prod-rows .row {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          column-gap: 8px;
+          row-gap: 4px;
+          margin: 8px 0;
+        }
+
+        /* Por defecto, cada campo ocupa toda la fila */
+        #prod-rows .row > * {
+          grid-column: 1 / -1;
+          width: 100%;
+        }
+
+        /* Precio y Stock comparten una misma fila (2 columnas) */
+        #prod-rows .p-price,
+        #prod-rows .p-stock {
+          grid-column: span 1;
+        }
+
+        /* Stock real / Fotos: sigue en una sola columna, pero más compacto */
+        #stock-rows .row {
+          grid-template-columns: 1fr !important;
+          row-gap: 4px;
+          margin: 8px 0;
+        }
+
+        #stock-rows .row > * {
+          width: 100%;
+        }
+
+        /* Acciones al 100% de ancho */
+        #prod-rows .row > div:last-child,
+        #stock-rows .row > div:last-child {
+          justify-content: space-between !important;
+        }
+
+        /* File inputs / botones ocupan el ancho completo */
+        .p-file::file-selector-button,
+        .s-file::file-selector-button,
+        .btn-upload,
+        .btn-del-photo {
+          width: 100%;
+        }
+
+        /* Controles del módulo “Galería por producto” en columna */
+        .pm-ctrls {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .pm-ctrls label,
+        .pm-actions {
+          width: 100%;
+        }
+
+        .pm-ctrls input,
+        .pm-ctrls select,
+        .pm-ctrls button {
+          width: 100%;
+        }
+      }
+
       /* Toast discreto (abajo, estilo pill) */
       .toast {
         position: fixed;
@@ -464,21 +585,6 @@
         grid-template-columns: 90px 160px 360px 120px 100px max-content 160px;
       }
 
-      /* Encabezado Stock/Fotos: “Nombre del producto” más largo */
-      .stock-head {
-        /* Nombre | Orden | Visible | Foto | Acciones */
-        grid-template-columns: 420px 100px 90px max-content 160px;
-      }
-
-      /* Móvil: header = mismas columnas que las filas (valores fijos de JS) */
-      @media (max-width: 1200px) {
-        .prod-head {
-          grid-template-columns: 90px 160px 360px 120px 100px max-content 160px;
-        }
-        .stock-head {
-          grid-template-columns: 420px 100px 90px max-content 160px;
-        }
-      }
       /* FIX: respetar [hidden] del diálogo viejo */
       .dlg-overlay[hidden] {
         display: none !important;

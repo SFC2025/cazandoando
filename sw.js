@@ -10,7 +10,7 @@ self.addEventListener("install", (e) => {
         "./style.css",
         "./script.js",
         "./data/products.json",
-        // agrega acá SOLO archivos que existan realmente
+        // agregar acá SOLO archivos que existan realmente
         // './assets/logo.webp',
       ])
     )
