@@ -525,64 +525,68 @@
         outline: 0;
         box-shadow: 0 0 0 3px rgba(255, 208, 151, 0.55);
       }
-      /* === Unifico scroll en móvil (un solo scroller dentro de #app) === */
-      #app {
-        overflow-x: auto;
-      } /* el contenedor principal scrollea */
-      #app .card {
-        overflow: visible;
-      } /* evita scroll secundario en hijos */
+      /* === Layout con scroll horizontal SOLO en pantallas grandes === */
+      @media (min-width: 641px) {
+        #app {
+          overflow-x: auto;
+        } /* el contenedor principal scrollea */
 
-      /* El panel de stock NO debe verse como tarjeta independiente */
-      .card #stock-admin {
-        background: transparent;
-        border: 0;
-        padding: 0;
-      }
+        #app .card {
+          overflow: visible;
+        } /* evita scroll secundario en hijos */
 
-      /* Ambos listados tengan el mismo ancho mínimo para el scroll */
-      #prod-rows,
-      #stock-rows {
-        min-width: 1120px;
-      }
-      /* === Encabezados de listas (Productos / Stock) === */
-      .grid-head {
-        display: grid;
-        gap: 8px;
-        align-items: center;
-        margin: 6px 0 4px;
-        position: sticky;
-        top: 0;
-        z-index: 3;
-        background: #0b0b0b;
-        min-width: 1120px;
-        width: 100%;
-      }
+        /* El panel de stock NO debe verse como tarjeta independiente */
+        .card #stock-admin {
+          background: transparent;
+          border: 0;
+          padding: 0;
+        }
 
-      .grid-head > * {
-        box-sizing: border-box; /* padding/borde NO agrandan la columna */
-        width: 100%; /* llena su pista del grid */
-        min-width: 0; /* permite encoger como la fila */
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
+        /* Ambos listados tengan el mismo ancho mínimo para el scroll */
+        #prod-rows,
+        #stock-rows {
+          min-width: 1120px;
+        }
 
-      .grid-head span {
-        display: block;
-        font-weight: 800;
-        font-size: 13px;
-        padding: 8px 10px;
-        border-radius: 8px;
-        background: #0b0b0b;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: #e5e7eb;
-      }
+        /* === Encabezados de listas (Productos / Stock) === */
+        .grid-head {
+          display: grid;
+          gap: 8px;
+          align-items: center;
+          margin: 6px 0 4px;
+          position: sticky;
+          top: 0;
+          z-index: 3;
+          background: #0b0b0b;
+          min-width: 1120px;
+          width: 100%;
+        }
 
-      /* Encabezado Productos: “Nombre del producto” más largo */
-      .prod-head {
-        /* ID | Categoría | Nombre | Precio | Stock | Foto | Acciones */
-        grid-template-columns: 90px 160px 360px 120px 100px max-content 160px;
+        .grid-head > * {
+          box-sizing: border-box; /* padding/borde NO agrandan la columna */
+          width: 100%; /* llena su pista del grid */
+          min-width: 0; /* permite encoger como la fila */
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .grid-head span {
+          display: block;
+          font-weight: 800;
+          font-size: 13px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          background: #0b0b0b;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #e5e7eb;
+        }
+
+        /* Encabezado Productos: “Nombre del producto” más largo */
+        .prod-head {
+          /* ID | Categoría | Nombre | Precio | Stock | Foto | Acciones */
+          grid-template-columns: 90px 160px 360px 120px 100px max-content 160px;
+        }
       }
 
       /* FIX: respetar [hidden] del diálogo viejo */
@@ -611,6 +615,15 @@
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+      @media (max-width: 640px) {
+        .pm-table {
+          width: 100%;
+          min-width: 0;
+          table-layout: fixed;
+          display: block;
+          overflow-x: auto; /* si se pasa un poco, solo scrollea esa tablita */
+        }
       }
     </style>
 
